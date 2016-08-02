@@ -77,6 +77,7 @@ function buildExtensions(options) {
   buildExtension('amp-install-serviceworker', '0.1', false, options);
   buildExtension('amp-jwplayer', '0.1', false, options);
   buildExtension('amp-lightbox', '0.1', false, options);
+  buildExtension('amp-lightbox-viewer', '0.1', true, options);
   buildExtension('amp-list', '0.1', false, options);
   buildExtension('amp-live-list', '0.1', true, options);
   buildExtension('amp-mustache', '0.1', false, options);
@@ -391,6 +392,7 @@ function buildExamples(watch) {
   buildExample('metadata-examples/video-json-ld.amp.html');
   buildExample('metadata-examples/video-microdata.amp.html');
   buildExample('everything.amp.html');
+  buildExample('empty.amp.html');
   buildExample('font.amp.html');
   buildExample('forms.amp.html');
   buildExample('facebook.amp.html');

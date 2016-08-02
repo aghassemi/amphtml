@@ -14,5 +14,8 @@ amp-image-lightbox                          |   1000      |   extensions/amp-ima
 amp-live-list > [update]                    |   1000      |   extensions/amp-live-list/0.1/amp-live-list.css
 amp-user-notification                       |   1000      |   extensions/amp-user-notification/0.1/amp-user-notification.css
 .-amp-image-lightbox-trans                  |   1001      |   extensions/amp-image-lightbox/0.1/amp-image-lightbox.css
+.-amp-lightbox-viewer-mask 2000
+.amp-lightboxed 2001
+.-amp-lightbox-viewer-buton 2002
 .-amp-sidebar-mask                          |   9998      |   extensions/amp-sidebar/0.1/amp-sidebar.css
 amp-sidebar                                 |   9999      |   extensions/amp-sidebar/0.1/amp-sidebar.css
