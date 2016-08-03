@@ -17,7 +17,7 @@
 /* Overridable properties */
 .amp-lightboxed {
   position: fixed !important;
-  z-index: 2147483646 !important;
+  z-index: 2147483645 !important;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -35,7 +35,7 @@
 .amp-lightbox-viewer-button-next,
 .amp-lightbox-viewer-button-previous,
 .amp-lightbox-viewer-button-close {
-  z-index: 2147483647 !important;
+  z-index: 2147483646 !important;
   position: fixed !important;
   width: 32px;
   height: 32px;
@@ -68,7 +68,7 @@
 
 .-amp-lightbox-viewer-mask {
   position: fixed !important;
-  z-index: 2147483645 !important;
+  z-index: 2147483644 !important;
   top:0 !important;
   left: 0 !important;
   right: 0 !important;
