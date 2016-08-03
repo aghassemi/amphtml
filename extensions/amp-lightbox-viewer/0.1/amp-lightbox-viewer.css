@@ -23,8 +23,15 @@
   transform: translate(-50%, -50%);
 }
 
-/* TODO(aghassemi) RTL */
+.-amp-lightbox-viewer[no-next] .amp-lightbox-viewer-button-next {
+  display: none;
+}
 
+.-amp-lightbox-viewer[no-prev] .amp-lightbox-viewer-button-previous {
+  display: none;
+}
+
+/* TODO(aghassemi) RTL */
 .amp-lightbox-viewer-button-next,
 .amp-lightbox-viewer-button-previous,
 .amp-lightbox-viewer-button-close {
@@ -59,16 +66,6 @@
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="%23fff" height="24" viewBox="0 0 24 24" width="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
 }
 
-/* Non-overridable properties */
-.amp-lightboxed.-amp-layout-responsive {
-  width: 100% !important;
-}
-
-blockquote.amp-lightboxed {
-  width: 100% !important;
-  color: white;
-}
-
 .-amp-lightbox-viewer-mask {
   position: fixed !important;
   z-index: 2147483645 !important;
@@ -78,4 +75,37 @@ blockquote.amp-lightboxed {
   bottom: 0 !important;
   background-image: none !important;
   background-color: rgba(0,0,0,1);
+}
+
+
+/* Plugins*/
+.amp-lightboxed.-amp-layout-responsive {
+  width: 100% !important;
+}
+
+blockquote.amp-lightboxed {
+  width: 100% !important;
+  color: white;
+}
+
+amp-carousel .amp-lightboxed {
+  margin-left: 0px !important;
+  visibility: visible !important;
+  top: 50% !important;
+  left: 50% !important;
+  bottom: auto !important;
+  right: auto !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+amp-img.amp-lightboxed {
+  width: 100% !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%);
+  border: none !important;
+}
+
+amp-img.amp-lightboxed img {
+  object-fit: contain;
 }

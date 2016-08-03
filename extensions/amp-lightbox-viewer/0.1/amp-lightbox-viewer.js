@@ -18,6 +18,7 @@ import {CSS} from '../../../build/amp-lightbox-viewer-0.1.css';
 import {Layout} from '../../../src/layout';
 import {lightboxManagerForDoc} from '../../../src/lightbox-manager.js';
 import {dev} from '../../../src/log';
+import {ancestorElements} from '../../../src/dom';
 
 class AmpLightboxViewer extends AMP.BaseElement {
 
@@ -42,6 +43,7 @@ class AmpLightboxViewer extends AMP.BaseElement {
     this.manager_ = lightboxManagerForDoc(this.win.document.documentElement);
 
     this.container_ = this.win.document.createElement('div');
+    this.container_.classList.add('-amp-lightbox-viewer');
 
     this.buildMask_();
     this.buildControls_();
@@ -94,13 +96,16 @@ class AmpLightboxViewer extends AMP.BaseElement {
         'keydown', this.boundCloseOnEscape_);
   }
 
-  close_() {
+  close_(event) {
+    if (event) {
+      event.stopPropagation();
+    }
     if (!this.active_) {
       return;
     }
 
     this.element.style.display = 'none';
-    this.activeElem_.classList.remove('amp-lightboxed');
+    this.tearDownElem_(this.activeElem_);
 
     this.activeElem_ = null;
     this.active_ = false;
@@ -109,18 +114,35 @@ class AmpLightboxViewer extends AMP.BaseElement {
         'keydown', this.boundCloseOnEscape_);
   }
 
-  next_() {
+  next_(event) {
+    if (event) {
+      event.stopPropagation();
+    }
+
     const nextElem = this.manager_.getNext(this.activeElem_);
     dev.assert(nextElem);
 
     this.updateViewer_(nextElem);
   }
 
-  previous_() {
+  previous_(event) {
+    if (event) {
+      event.stopPropagation();
+    }
     const prevElem = this.manager_.getPrevious(this.activeElem_);
     dev.assert(prevElem);
 
     this.updateViewer_(prevElem);
+  }
+
+  setupElem_(elem) {
+    this.updateStackingContext_(elem, false);
+    elem.classList.add('amp-lightboxed');
+  }
+
+  tearDownElem_(elem) {
+    this.updateStackingContext_(elem, true);
+    elem.classList.remove('amp-lightboxed');
   }
 
   updateViewer_(newElem) {
@@ -130,23 +152,54 @@ class AmpLightboxViewer extends AMP.BaseElement {
 
     // tear down the previous element
     if (previousElem) {
-      previousElem.classList.remove('amp-lightboxed');
+      this.tearDownElem_(previousElem);
     }
+
+    // setup the new element
+    this.setupElem_(newElem);
+
+    // update the controls
+    this.updateControls_(newElem);
 
     // update to new element
     this.activeElem_ = newElem;
 
-    // setup the new element
-    newElem.classList.add('amp-lightboxed');
+    // TODO(aghassemi): Preloading
 
-    // update the controls
+    // TODO(aghassemi): This is a big hack
+    if (newElem.resources_) {
+      newElem.__AMP__RESOURCE.setInViewport(true);
+      newElem.resources_.scheduleLayout(newElem, newElem);
+    }
+  }
 
-
-    // TODO(aghassemi): Preloading and schedule layout
-    if (newElem.layoutCallback) {
-      newElem.layoutCallback();
+  updateControls_(newElem) {
+    const prevElem = this.manager_.getPrevious(newElem);
+    const nextElem = this.manager_.getNext(newElem);
+    if (!prevElem) {
+      this.container_.setAttribute('no-prev', '');
+    } else {
+      this.container_.removeAttribute('no-prev');
     }
 
+    if (!nextElem) {
+      this.container_.setAttribute('no-next', '');
+    } else {
+      this.container_.removeAttribute('no-next');
+    }
+  }
+  updateStackingContext_(elem, reset) {
+    const ancestors = ancestorElements(elem, e => {
+      return e.style.position != 'static';
+    });
+    for (let i = 0 ; i < ancestors.length; i++) {
+      const p = ancestors[i];
+      if (reset) {
+        p.style.zIndex = '';
+      } else {
+        p.style.zIndex = 'auto';
+      }
+    }
   }
 
   closeOnEscape_(event) {

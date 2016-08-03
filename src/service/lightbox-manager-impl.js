@@ -23,8 +23,8 @@ const ELIGIBLE_TAGS = [
   'amp-ad',
   'amp-dailymotion',
   'amp-facebook',
-  //'amp-iframe', //?
-  //'amp-embed', //?
+  'amp-iframe', //?
+  'amp-embed', //?
   'amp-instagram',
   'amp-jwplayer',
   'amp-kaltura-player',
@@ -35,12 +35,13 @@ const ELIGIBLE_TAGS = [
   'amp-vimeo',
   'amp-vine',
   'amp-youtube',
+  'amp-anim',
   'amp-video',
   'blockquote',
 ];
 
 const ELIGIBLE_TAP_TAGS = {
-  'amp-img': true
+  'amp-img': true,
 }
 
 export class LighboxManager {
@@ -58,7 +59,7 @@ export class LighboxManager {
 
     whenDocumentReady(ampdoc).then(() => {
       this.loadLightboxViewer_();
-      this.schedulePass();
+      this.schedulePass(1000);
     });
   }
 
@@ -98,22 +99,32 @@ export class LighboxManager {
         elem.setAttribute('lightbox-enable', '');
 
         if (this.meetsHeuristicsForTap_(elem)) {
-          elem.setAttribute('on', 'tap:-amp-lightbox');
+          elem.setAttribute('on', 'tap:amp-lightbox');
         }
       }
     }
   }
 
   meetsHeuristicsForAutoLightbox_(elem) {
-    if (elem.hasAttribute('placeholder')) {
+    if (elem.hasAttribute('placeholder') &&
+        elem.getAttribute('placeholder') == '') {
       return false;
     }
-    if (elem.hasAttribute('width') && elem.getAttribute('width') < 100) {
+
+    // direct child of carousel is eligible
+    if (elem.parentNode && elem.parentNode.tagName == 'AMP-CAROUSEL') {
+      return true;
+    }
+
+    const layoutBox = elem.getLayoutBox();
+
+    if (layoutBox.left < 0 ||
+        layoutBox.width < 50 ||
+        layoutBox.height < 50
+    ) {
       return false;
     }
-    if (elem.hasAttribute('height') && elem.getAttribute('height') < 100) {
-      return false;
-    }
+
     return true;
   }
 
@@ -138,7 +149,7 @@ export class LighboxManager {
     const viewer = this.ampdoc.getRootNode()
         .createElement('amp-lightbox-viewer');
     viewer.setAttribute('layout', 'nodisplay');
-    viewer.setAttribute('id', '-amp-lightbox');
+    viewer.setAttribute('id', 'amp-lightbox');
     this.ampdoc.getRootNode().body.appendChild(viewer);
   }
 
