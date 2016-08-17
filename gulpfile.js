@@ -78,8 +78,7 @@ function buildExtensions(options) {
   buildExtension('amp-instagram', '0.1', false, options);
   buildExtension('amp-install-serviceworker', '0.1', false, options);
   buildExtension('amp-jwplayer', '0.1', false, options);
-  buildExtension('amp-lightbox', '0.1', false, options);
-  buildExtension('amp-lightbox-viewer', '0.1', true, options);
+  buildExtension('amp-lightbox', '0.1', true, options);
   buildExtension('amp-list', '0.1', false, options);
   buildExtension('amp-live-list', '0.1', true, options);
   buildExtension('amp-mustache', '0.1', false, options);
@@ -341,8 +340,6 @@ function checkTypes() {
 }
 
 /**
-  buildExample('lightbox-2.amp.html');
-  buildExample('empty.amp.html');
  * Copies frame.html to output folder, replaces js references to minified
  * copies, and generates symlink to it.
  *

@@ -1,5 +1,5 @@
 /**
- * Copyright 2015 The AMP HTML Authors. All Rights Reserved.
+ * Copyright 2016 The AMP HTML Authors. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ const ELIGIBLE_TAGS = [
   'amp-ad',
   'amp-dailymotion',
   'amp-facebook',
-  'amp-iframe', //?
-  'amp-embed', //?
+  'amp-iframe',
+  'amp-embed',
   'amp-instagram',
   'amp-jwplayer',
   'amp-kaltura-player',
@@ -42,7 +42,7 @@ const ELIGIBLE_TAGS = [
 
 const ELIGIBLE_TAP_TAGS = {
   'amp-img': true,
-}
+};
 
 export class LighboxManager {
 
@@ -77,6 +77,14 @@ export class LighboxManager {
       return;
     }
     return this.elems[curIndex - 1];
+  }
+
+  hasNext(elem) {
+    return !!this.getNext(elem);
+  }
+
+  hasPrevious(elem) {
+    return !!this.getPrevious(elem);
   }
 
   doPass_() {
@@ -143,7 +151,7 @@ export class LighboxManager {
     const script = this.ampdoc.getRootNode().createElement('script');
     script.setAttribute('async', '');
     script.setAttribute('custom-element', 'amp-lightbox-viewer');
-    script.setAttribute('src', 'http://localhost:8000/dist/v0/amp-lightbox-viewer-0.1.max.js');
+    script.setAttribute('src', 'http://localhost:8000/dist/v0/amp-lightbox-0.1.max.js');
     this.ampdoc.getRootNode().body.appendChild(script);
 
     const viewer = this.ampdoc.getRootNode()

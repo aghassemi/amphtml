@@ -20,7 +20,7 @@ import {SwipeXYRecognizer} from '../../../src/gesture-recognizers';
 import {historyFor} from '../../../src/history';
 import {vsyncFor} from '../../../src/vsync';
 import * as st from '../../../src/style';
-
+import {registerLightboxViewer} from './amp-lightbox-viewer';
 
 class AmpLightbox extends AMP.BaseElement {
 
@@ -134,3 +134,4 @@ class AmpLightbox extends AMP.BaseElement {
 }
 
 AMP.registerElement('amp-lightbox', AmpLightbox);
+registerLightboxViewer();
