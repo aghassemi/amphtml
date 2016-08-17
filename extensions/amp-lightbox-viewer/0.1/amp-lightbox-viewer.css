@@ -1,5 +1,5 @@
 /**
- * Copyright 2015 The AMP HTML Authors. All Rights Reserved.
+ * Copyright 2016 The AMP HTML Authors. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,70 @@
  * limitations under the License.
  */
 
-/* Overridable properties */
+/**
+ * .amp-lightboxed gets added to the element when displayed in the lightbox.
+ * .amp-lightboxed is designed to provide a reasonable default behaviour for
+ * arbitary elements when lightboxed. However both components and page authors
+ * are free to customize the style of the element when inside the lightbox.
+ * Example:
+ *    .myDiv {
+ *       color: blue;
+ *     }
+ *
+ *     .myDiv.amp-lightboxed {
+ *       color: red;
+ *     }
+ */
 .amp-lightboxed {
   position: fixed !important;
   z-index: 2147483645 !important;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
 
-.-amp-lightbox-viewer[no-next] .amp-lightbox-viewer-button-next {
-  display: none;
+/**
+ * The following rule is needed to reset the stacking context.
+ * By resetting the properties that create new stacking context on the
+ * ancestors of the item being lightboxed, we end up with a single stacking
+ * context and therefore the z-index will work. More info: https://goo.gl/uqY5CN
+ * Code is mostly copied from Chrome's FullScreen Css https://goo.gl/gjbKoI
+ */
+.-amp-lightboxed-ancestor {
+  z-index: auto !important;
+  position: static !important;
+  opacity: 1 !important;
+  transform: none !important;
+  clip: none !important;
+  transition: none !important;
+  will-change: auto !important;
+  -webkit-mask: none !important;
+  -webkit-filter: none !important;
+  -webkit-box-reflect: none !important;
+  -webkit-perspective: none !important;
+  -webkit-transform-style: flat !important;
+}
+:root.-amp-lightboxed-ancestor {
+  overflow: hidden !important;
 }
 
-.-amp-lightbox-viewer[no-prev] .amp-lightbox-viewer-button-previous {
-  display: none;
+/* Page mask */
+.-amp-lightbox-viewer-mask {
+  position: fixed !important;
+  z-index: 2147483644 !important;
+  top:0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background-image: none !important;
+  opacity: 1 !important;
+  background-color: rgba(0,0,0, 1) !important;
 }
 
-/* TODO(aghassemi) RTL */
+/* Controls */
 .amp-lightbox-viewer-button-next,
 .amp-lightbox-viewer-button-previous,
 .amp-lightbox-viewer-button-close {
@@ -43,7 +89,7 @@
   background-position: center center;
   background-color: rgba(0,0,0,0.7);
 }
-
+/* TODO(aghassemi): Polish the controls and add RTL support */
 .amp-lightbox-viewer-button-next,
 .amp-lightbox-viewer-button-previous {
   top: 50%;
@@ -66,46 +112,10 @@
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="%23fff" height="24" viewBox="0 0 24 24" width="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
 }
 
-.-amp-lightbox-viewer-mask {
-  position: fixed !important;
-  z-index: 2147483644 !important;
-  top:0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  background-image: none !important;
-  background-color: rgba(0,0,0,1);
+.-amp-lightbox-viewer[no-next] .amp-lightbox-viewer-button-next {
+  display: none;
 }
 
-
-/* Plugins*/
-.amp-lightboxed.-amp-layout-responsive {
-  width: 100% !important;
-}
-
-blockquote.amp-lightboxed {
-  width: 100% !important;
-  color: white;
-}
-
-amp-carousel .amp-lightboxed {
-  margin-left: 0px !important;
-  visibility: visible !important;
-  top: 50% !important;
-  left: 50% !important;
-  bottom: auto !important;
-  right: auto !important;
-  transform: translate(-50%, -50%) !important;
-}
-
-amp-img.amp-lightboxed {
-  width: 100% !important;
-  top: 50% !important;
-  left: 50% !important;
-  transform: translate(-50%, -50%);
-  border: none !important;
-}
-
-amp-img.amp-lightboxed img {
-  object-fit: contain;
+.-amp-lightbox-viewer[no-prev] .amp-lightbox-viewer-button-previous {
+  display: none;
 }

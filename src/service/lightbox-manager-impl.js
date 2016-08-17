@@ -59,7 +59,7 @@ export class LighboxManager {
 
     whenDocumentReady(ampdoc).then(() => {
       this.loadLightboxViewer_();
-      this.schedulePass(1000);
+      this.schedulePass();
     });
   }
 
@@ -80,10 +80,10 @@ export class LighboxManager {
   }
 
   doPass_() {
-    this.doAutoLightboxPass_();
+    //this.doAutoLightboxPass_();
 
     const elemList = this.ampdoc.getRootNode()
-        .querySelectorAll('*[lightbox-enable]');
+        .querySelectorAll('*[lightbox]');
 
     this.elems = Array.prototype.slice.call(elemList);
   }
@@ -149,7 +149,7 @@ export class LighboxManager {
     const viewer = this.ampdoc.getRootNode()
         .createElement('amp-lightbox-viewer');
     viewer.setAttribute('layout', 'nodisplay');
-    viewer.setAttribute('id', 'amp-lightbox');
+    viewer.setAttribute('id', 'amp-lightbox-viewer');
     this.ampdoc.getRootNode().body.appendChild(viewer);
   }
 

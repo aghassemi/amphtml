@@ -1,5 +1,5 @@
 /**
- * Copyright 2015 The AMP HTML Authors. All Rights Reserved.
+ * Copyright 2016 The AMP HTML Authors. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 import {CSS} from '../../../build/amp-lightbox-viewer-0.1.css';
 import {Layout} from '../../../src/layout';
-import {lightboxManagerForDoc} from '../../../src/lightbox-manager.js';
-import {dev} from '../../../src/log';
+import {lightboxManagerForDoc} from '../../../src/lightbox-manager';
+import {user, dev} from '../../../src/log';
 import {ancestorElements} from '../../../src/dom';
 
 class AmpLightboxViewer extends AMP.BaseElement {
@@ -29,14 +29,18 @@ class AmpLightboxViewer extends AMP.BaseElement {
 
   /** @override */
   activate(invocation) {
-    this.open_(invocation.source);
+    let target = invocation.source;
+    if (invocation.args && invocation.args.id) {
+      const targetId = invocation.args.id;
+      target = document.getElementById(targetId);
+      user().assert(target, 'element with id: %s not found', targetId);
+    }
+    this.open_(target);
   }
 
-  buildLazy_() {
-    if (this.container_) {
-      return;
-    }
-
+  /** @override */
+  buildCallback() {
+    this.registerAction('open', this.activate.bind(this));
     this.active_ = false;
     this.activeElem = null;
     this.boundCloseOnEscape_ = this.closeOnEscape_.bind(this);
@@ -52,7 +56,7 @@ class AmpLightboxViewer extends AMP.BaseElement {
   }
 
   buildMask_() {
-    dev.assert(this.container_);
+    dev().assert(this.container_);
     const mask = this.win.document.createElement('div');
     mask.classList.add('-amp-lightbox-viewer-mask');
     this.container_.appendChild(mask);
@@ -85,8 +89,6 @@ class AmpLightboxViewer extends AMP.BaseElement {
       return;
     }
 
-    this.buildLazy_();
-
     this.updateViewer_(elem);
 
     this.element.style.display = 'block';
@@ -97,11 +99,11 @@ class AmpLightboxViewer extends AMP.BaseElement {
   }
 
   close_(event) {
-    if (event) {
-      event.stopPropagation();
-    }
     if (!this.active_) {
       return;
+    }
+    if (event) {
+      event.stopPropagation();
     }
 
     this.element.style.display = 'none';
@@ -120,7 +122,7 @@ class AmpLightboxViewer extends AMP.BaseElement {
     }
 
     const nextElem = this.manager_.getNext(this.activeElem_);
-    dev.assert(nextElem);
+    dev().assert(nextElem);
 
     this.updateViewer_(nextElem);
   }
@@ -129,8 +131,9 @@ class AmpLightboxViewer extends AMP.BaseElement {
     if (event) {
       event.stopPropagation();
     }
+
     const prevElem = this.manager_.getPrevious(this.activeElem_);
-    dev.assert(prevElem);
+    dev().assert(prevElem);
 
     this.updateViewer_(prevElem);
   }
@@ -147,8 +150,8 @@ class AmpLightboxViewer extends AMP.BaseElement {
 
   updateViewer_(newElem) {
     const previousElem = this.activeElem_;
-    dev.assert(newElem);
-    dev.assert(newElem != previousElem);
+    dev().assert(newElem);
+    dev().assert(newElem != previousElem);
 
     // tear down the previous element
     if (previousElem) {
@@ -165,7 +168,6 @@ class AmpLightboxViewer extends AMP.BaseElement {
     this.activeElem_ = newElem;
 
     // TODO(aghassemi): Preloading
-
     // TODO(aghassemi): This is a big hack
     if (newElem.resources_) {
       newElem.__AMP__RESOURCE.setInViewport(true);
@@ -188,18 +190,18 @@ class AmpLightboxViewer extends AMP.BaseElement {
       this.container_.removeAttribute('no-next');
     }
   }
+
   updateStackingContext_(elem, reset) {
     const ancestors = ancestorElements(elem, e => {
-      return e.style.position != 'static';
+      return true;
     });
-    for (let i = 0 ; i < ancestors.length; i++) {
-      const p = ancestors[i];
+    ancestors.forEach(p => {
       if (reset) {
-        p.style.zIndex = '';
+        p.classList.remove('-amp-lightboxed-ancestor');
       } else {
-        p.style.zIndex = 'auto';
+        p.classList.add('-amp-lightboxed-ancestor');
       }
-    }
+    });
   }
 
   closeOnEscape_(event) {
