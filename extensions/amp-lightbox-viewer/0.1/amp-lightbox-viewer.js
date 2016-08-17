@@ -27,28 +27,9 @@ class AmpLightboxViewer extends AMP.BaseElement {
     return layout == Layout.NODISPLAY;
   }
 
-  /**
-   * Opens the lightbox-viewer with either the invocation source or
-   * the element referenced by the `id` argument.
-   * Examples:
-   *  // Opens the element tapped in the viewer.
-   *  on="tap:amp-lightbox-viewer'
-   *
-   *  // Opens the element referenced by elementId in the viewer
-   *  on="tap:amp-lightbox-viewer.open(id='<elementId>')
-   * @override
-   */
-  activate(invocation) {
-    let target = invocation.source;
-    // Action optionally accepts the id of the element to open in the
-    // lightbox. on="tap:amp-lightbox-viewer.open(id='<elementId>')
-    if (invocation.args && invocation.args.id) {
-      const targetId = invocation.args.id;
-      target = this.win.document.getElementById(targetId);
-      user().assert(target,
-        'amp-lightbox-viewer.open: element with id: %s not found', targetId);
-    }
-    this.open_(target);
+  /** @override */
+  renderOutsideViewport() {
+    return true;
   }
 
   /** @override */
@@ -65,7 +46,7 @@ class AmpLightboxViewer extends AMP.BaseElement {
 
     /**
      * @const
-     * @private {!../../../src/service/lightbox-manager-impl.LighboxManager}
+     * @private {!../../../src/service/lightbox-manager-impl.LightboxManager}
      */
     this.manager_ = lightboxManagerForDoc(this.win.document.documentElement);
 
@@ -124,6 +105,30 @@ class AmpLightboxViewer extends AMP.BaseElement {
   }
 
   /**
+   * Opens the lightbox-viewer with either the invocation source or
+   * the element referenced by the `id` argument.
+   * Examples:
+   *  // Opens the element tapped in the viewer.
+   *  on="tap:amp-lightbox-viewer'
+   *
+   *  // Opens the element referenced by elementId in the viewer
+   *  on="tap:amp-lightbox-viewer.open(id='<elementId>')
+   * @override
+   */
+  activate(invocation) {
+    let target = invocation.source;
+    // Action optionally accepts the id of the element to open in the
+    // lightbox. on="tap:amp-lightbox-viewer.open(id='<elementId>')
+    if (invocation.args && invocation.args.id) {
+      const targetId = invocation.args.id;
+      target = this.win.document.getElementById(targetId);
+      user().assert(target,
+        'amp-lightbox-viewer.open: element with id: %s not found', targetId);
+    }
+    this.open_(target);
+  }
+
+  /**
    * Opens the lightbox-viewer and displays the given element inside.
    * @param {!Element} elem Element to lightbox.
    * @private
@@ -167,12 +172,11 @@ class AmpLightboxViewer extends AMP.BaseElement {
    */
   next_() {
     dev().assert(this.activeElem_);
-    const nextElem = this.manager_.getNext(this.activeElem_);
-    if (!nextElem) {
-      return;
-    }
-
-    this.updateViewer_(nextElem);
+    this.manager_.getNext(this.activeElem_).then(nextElem => {
+      if (nextElem) {
+        this.updateViewer_(nextElem);
+      }
+    });
   }
 
   /**
@@ -181,12 +185,11 @@ class AmpLightboxViewer extends AMP.BaseElement {
    */
   previous_() {
     dev().assert(this.activeElem_);
-    const prevElem = this.manager_.getPrevious(this.activeElem_);
-    if (!prevElem) {
-      return;
-    }
-
-    this.updateViewer_(prevElem);
+    this.manager_.getPrevious(this.activeElem_).then(prevElem => {
+      if (prevElem) {
+        this.updateViewer_(prevElem);
+      }
+    });
   }
 
   /**
@@ -216,7 +219,7 @@ class AmpLightboxViewer extends AMP.BaseElement {
     // TODO(aghassemi): Preloading of +/- 1 elements
 
     // TODO(aghassemi): This is a giant hack.
-    // find a proper way of scheduling layout for a resource that does not
+    // Find a proper way of scheduling layout for a resource that does not
     // not belong to the element requesting the layout.
     if (newElem.resources_) {
       newElem.__AMP__RESOURCE.setInViewport(true);
@@ -250,20 +253,22 @@ class AmpLightboxViewer extends AMP.BaseElement {
    */
   updateControls_() {
     dev().assert(this.activeElem_);
-    const hasPrevious = this.manager_.hasPrevious(this.activeElem_);
-    const hasNext = this.manager_.hasNext(this.activeElem_);
 
-    if (!hasPrevious) {
-      this.container_.setAttribute('no-prev', '');
-    } else {
-      this.container_.removeAttribute('no-prev');
-    }
+    this.manager_.hasPrevious(this.activeElem_).then(hasPrev => {
+      if (!hasPrev) {
+        this.container_.setAttribute('no-prev', '');
+      } else {
+        this.container_.removeAttribute('no-prev');
+      }
+    });
 
-    if (!hasNext) {
-      this.container_.setAttribute('no-next', '');
-    } else {
-      this.container_.removeAttribute('no-next');
-    }
+    this.manager_.hasNext(this.activeElem_).then(hasNext => {
+      if (!hasNext) {
+        this.container_.setAttribute('no-next', '');
+      } else {
+        this.container_.removeAttribute('no-next');
+      }
+    });
   }
 
   /**
@@ -322,6 +327,4 @@ class AmpLightboxViewer extends AMP.BaseElement {
   }
 }
 
-export function registerLightboxViewer() {
-  AMP.registerElement('amp-lightbox-viewer', AmpLightboxViewer, CSS);
-}
+AMP.registerElement('amp-lightbox-viewer', AmpLightboxViewer, CSS);
