@@ -22,10 +22,15 @@ import {setStyles} from '../../../src/style';
 import {addParamsToUrl} from '../../../src/url';
 import {timerFor} from '../../../src/timer';
 import {isObject} from '../../../src/types';
+import {VideoEvents} from '../../../src/video-interface';
+import {videoManagerForDoc} from '../../../src/video-manager';
 
 /** @type {number} Value of YouTube player state when playing. */
 const YT_PLAYER_STATE_PLAYING = 1;
 
+  /**
+   * @implements {../src/video-interface.VideoInterface}
+   */
 class AmpYoutube extends AMP.BaseElement {
 
   /** @param {!AmpElement} element */
@@ -70,6 +75,11 @@ class AmpYoutube extends AMP.BaseElement {
   }
 
   /** @override */
+  viewportCallback(visible) {
+    this.element.dispatchCustomEvent(VideoEvents.VISIBILITY, {visible});
+  }
+
+  /** @override */
   buildCallback() {
     this.videoid_ = user().assert(
         this.element.getAttribute('data-videoid'),
@@ -79,6 +89,7 @@ class AmpYoutube extends AMP.BaseElement {
     if (!this.getPlaceholder()) {
       this.buildImagePlaceholder_();
     }
+
   }
 
   /** @override */
@@ -90,10 +101,17 @@ class AmpYoutube extends AMP.BaseElement {
     let src = `https://www.youtube.com/embed/${encodeURIComponent(this.videoid_ || '')}?enablejsapi=1`;
 
     const params = getDataParamsFromAttributes(this.element);
-    if ('autoplay' in params) {
+    if (params['autoplay'] == '1') {
+      this.element.setAttribute('autoplay', '');
+      // Autoplay is managed by VideManager, do not pass it to Youtube.
       delete params['autoplay'];
-      user().warn('Autoplay is currently not support with amp-youtube.');
     }
+    if (params['controls'] != '0') {
+      this.element.setAttribute('controls', '');
+    }
+
+    params['playsinline'] = '1';
+
     src = addParamsToUrl(src, params);
 
     iframe.setAttribute('frameborder', '0');
@@ -110,6 +128,8 @@ class AmpYoutube extends AMP.BaseElement {
 
     this.win.addEventListener(
         'message', event => this.handleYoutubeMessages_(event));
+
+    videoManagerForDoc(this.win.document).register(this);
 
     return this.loadPromise(iframe)
         .then(() => {
@@ -130,16 +150,16 @@ class AmpYoutube extends AMP.BaseElement {
     // on mobile.
     if (this.iframe_ && this.iframe_.contentWindow &&
         this.playerState_ == YT_PLAYER_STATE_PLAYING) {
-      this.pauseVideo_();
+      this.pause();
     }
   }
 
   /** @private */
-  pauseVideo_() {
+  sendCommand_(command, args) {
     this.iframe_.contentWindow./*OK*/postMessage(JSON.stringify({
       'event': 'command',
-      'func': 'pauseVideo',
-      'args': '',
+      'func': command,
+      'args': args || '',
     }), '*');
   }
 
@@ -159,6 +179,7 @@ class AmpYoutube extends AMP.BaseElement {
     }
     if (data.event == 'onReady') {
       this.playerReadyResolver_(this.iframe_);
+      this.element.dispatchCustomEvent(VideoEvents.CANPLAY);
     } else if (data.event == 'infoDelivery' &&
         data.info && data.info.playerState !== undefined) {
       this.playerState_ = data.info.playerState;
@@ -221,6 +242,65 @@ class AmpYoutube extends AMP.BaseElement {
       });
     });
   }
+
+    // VideoInterface Implementation. See ../src/video-interface.VideoInterface
+
+    /**
+     * @override
+     */
+    supportsPlatform() {
+      return true;
+    }
+
+    /**
+     * @override
+     */
+    play(unusedIsAutoplay) {
+      this.playerReadyPromise_.then(() => {
+        this.sendCommand_('playVideo');
+      });
+    }
+
+    /**
+     * @override
+     */
+    pause() {
+      this.playerReadyPromise_.then(() => {
+        this.sendCommand_('pauseVideo');
+      });
+    }
+
+    /**
+     * @override
+     */
+    mute() {
+      this.playerReadyPromise_.then(() => {
+        this.sendCommand_('mute');
+      });
+    }
+
+    /**
+     * @override
+     */
+    unmute() {
+      this.playerReadyPromise_.then(() => {
+        this.sendCommand_('unmute');
+      });
+    }
+
+    /**
+     * @override
+     */
+    showControls() {
+      //this.video_.controls = true;
+    }
+
+    /**
+     * @override
+     */
+    hideControls() {
+      //this.video_.controls = false;
+    }
 };
 
 AMP.registerElement('amp-youtube', AmpYoutube);
