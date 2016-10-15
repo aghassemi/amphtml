@@ -22,10 +22,16 @@ import {setStyles} from '../../../src/style';
 import {addParamsToUrl} from '../../../src/url';
 import {timerFor} from '../../../src/timer';
 import {isObject} from '../../../src/types';
+import {VideoEvents} from '../../../src/video-interface';
+import {videoManagerForDoc} from '../../../src/video-manager';
 
 /** @type {number} Value of YouTube player state when playing. */
-const YT_PLAYER_STATE_PLAYING = 1;
+const YT_PLAYER_STATE_PLAY = 1;
+const YT_PLAYER_STATE_PAUSE = 2;
 
+ /**
+   * @implements {../src/video-interface.VideoInterface}
+   */
 class AmpYoutube extends AMP.BaseElement {
 
   /** @param {!AmpElement} element */
@@ -74,6 +80,11 @@ class AmpYoutube extends AMP.BaseElement {
   }
 
   /** @override */
+  viewportCallback(visible) {
+    this.element.dispatchCustomEvent(VideoEvents.VISIBILITY, {visible});
+  }
+
+  /** @override */
   buildCallback() {
     this.videoid_ = user().assert(
         this.element.getAttribute('data-videoid'),
@@ -103,10 +114,22 @@ class AmpYoutube extends AMP.BaseElement {
     let src = this.getVideoIframeSrc_();
 
     const params = getDataParamsFromAttributes(this.element);
-    if ('autoplay' in params) {
+    if (params['autoplay'] == '1') {
+      this.element.setAttribute('autoplay', '');
+      // Autoplay is managed by VideManager, do not pass it to Youtube.
       delete params['autoplay'];
-      user().warn('Autoplay is currently not support with amp-youtube.');
     }
+
+    if (this.element.hasAttribute('autoplay')) {
+      // also set controls to 0 if not set
+      if (!params['controls']) {
+        params['controls'] = '0';
+      }
+    }
+
+    this.element.setAttribute('controls', '');
+
+    params['playsinline'] = '1';
     src = addParamsToUrl(src, params);
 
     iframe.setAttribute('frameborder', '0');
@@ -116,6 +139,8 @@ class AmpYoutube extends AMP.BaseElement {
     this.element.appendChild(iframe);
 
     this.iframe_ = iframe;
+
+    videoManagerForDoc(this.win.document).register(this);
 
     this.playerReadyPromise_ = new Promise(resolve => {
       this.playerReadyResolver_ = resolve;
@@ -142,17 +167,17 @@ class AmpYoutube extends AMP.BaseElement {
     // The player breaks if the user haven't played the video yet specially
     // on mobile.
     if (this.iframe_ && this.iframe_.contentWindow &&
-        this.playerState_ == YT_PLAYER_STATE_PLAYING) {
-      this.pauseVideo_();
+        this.playerState_ == YT_PLAYER_STATE_PLAY) {
+      this.pause();
     }
   }
 
   /** @private */
-  pauseVideo_() {
+  sendCommand_(command, args) {
     this.iframe_.contentWindow./*OK*/postMessage(JSON.stringify({
       'event': 'command',
-      'func': 'pauseVideo',
-      'args': '',
+      'func': command,
+      'args': args || '',
     }), '*');
   }
 
@@ -172,9 +197,15 @@ class AmpYoutube extends AMP.BaseElement {
     }
     if (data.event == 'onReady') {
       this.playerReadyResolver_(this.iframe_);
+      this.element.dispatchCustomEvent(VideoEvents.LOAD);
     } else if (data.event == 'infoDelivery' &&
         data.info && data.info.playerState !== undefined) {
       this.playerState_ = data.info.playerState;
+      if (this.playerState_ == YT_PLAYER_STATE_PAUSE) {
+        this.element.dispatchCustomEvent(VideoEvents.PAUSE);
+      } else if (this.playerState_ == YT_PLAYER_STATE_PLAY) {
+        this.element.dispatchCustomEvent(VideoEvents.PLAY);
+      }
     }
   }
 
@@ -234,6 +265,63 @@ class AmpYoutube extends AMP.BaseElement {
       });
     });
   }
+
+   /**
+     * @override
+     */
+    supportsPlatform() {
+      return true;
+    }
+
+    /**
+     * @override
+     */
+    play(unusedIsAutoplay) {
+      this.playerReadyPromise_.then(() => {
+        this.sendCommand_('playVideo');
+      });
+    }
+
+    /**
+     * @override
+     */
+    pause() {
+      this.playerReadyPromise_.then(() => {
+        this.sendCommand_('pauseVideo');
+      });
+    }
+
+    /**
+     * @override
+     */
+    mute() {
+      this.playerReadyPromise_.then(() => {
+        this.sendCommand_('mute');
+      });
+    }
+
+    /**
+     * @override
+     */
+    unmute() {
+      this.playerReadyPromise_.then(() => {
+        this.sendCommand_('unMute');
+      });
+    }
+
+    /**
+     * @override
+     */
+    showControls() {
+
+    }
+
+    /**
+     * @override
+     */
+    hideControls() {
+
+    }
 };
 
 AMP.registerElement('amp-youtube', AmpYoutube);

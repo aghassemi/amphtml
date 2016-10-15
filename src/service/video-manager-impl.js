@@ -31,6 +31,11 @@ import {vsyncFor} from '../vsync';
  */
 const VISIBILITY_PERCENT = 75;
 
+const VIDEO_PLAYER_TAGS = {
+  'AMP-VIDEO': true,
+  'AMP-YOUTUBE': true,
+};
+
 /**
  * VideoManager keeps track of all AMP video players that implement
  * the common Video API {@see ../video-interface.VideoInterface}.
@@ -53,6 +58,22 @@ export class VideoManager {
 
     /** @private {boolean} */
     this.scrollListenerInstalled_ = false;
+
+    this.ampdoc_.win.setInterval(() => {
+      if (!this.entries_) {
+        return;
+      }
+      const elem = this.ampdoc_.win.document.activeElement;
+      if (!elem) {
+        return;
+      }
+      for (let i = 0; i < this.entries_.length; i++) {
+        const entry = this.entries_[i];
+        if (entry.video.element == elem || entry.video.element == elem.parentNode) {
+          entry.video.element.dispatchCustomEvent(VideoEvents.USER_TAP);
+        }
+      }
+    }, 100);
   }
 
   /**
@@ -160,6 +181,7 @@ class VideoEntry {
    * @private
    */
   videoBuilt_() {
+    this.updateVisibility();
     if (this.hasAutoplay_) {
       this.autoplayVideoBuilt_();
     }
@@ -226,19 +248,41 @@ class VideoEntry {
       if (this.video.element.hasAttribute(VideoAttributes.CONTROLS)) {
         this.video.hideControls();
         this.autoplayIcon_ = this.createAutoplayIcon_();
+        this.shim_ = this.createShim_();
 
         this.vsync_.mutate(() => {
           this.video.element.appendChild(this.autoplayIcon_);
+          this.video.element.appendChild(this.shim_);
         });
 
-        listenOnce(this.video.element, VideoEvents.USER_TAP, () => {
+        const unlistenPlay = listen(this.video.element, VideoEvents.PLAY, () => {
+          this.toggleAutoplayIcon_(true);
+        });
+        const unlistenPause = listen(this.video.element, VideoEvents.PAUSE, () => {
+          this.toggleAutoplayIcon_(false);
+        });
+
+        listenOnce(this.shim_, 'click', () => {
           this.userInteracted_ = true;
           this.video.showControls();
           this.video.unmute();
           this.autoplayIcon_.remove();
+          this.shim_.remove();
+          this.shim_ = null;
+          unlistenPlay();
+          unlistenPause();
+          this.autoplayIcon_ = null;
         });
       }
     });
+  }
+
+  toggleAutoplayIcon_(playing) {
+    if (this.autoplayIcon_) {
+      this.vsync_.mutate(() => {
+        this.autoplayIcon_.classList.toggle('amp-video-eq-play', playing);
+      });
+    }
   }
 
   /**
@@ -260,14 +304,14 @@ class VideoEntry {
       } else {
         this.video.pause();
       }
-
-      if (this.autoplayIcon_) {
-        this.vsync_.mutate(() => {
-          this.autoplayIcon_.classList.toggle('amp-video-eq-play',
-            this.isVisible_);
-        });
-      }
     });
+  }
+
+  createShim_() {
+    const doc = this.ampdoc_.win.document;
+    const shim = doc.createElement('i-amp-video-shim');
+    shim.classList.add('-amp-fill-content');
+    return shim;
   }
 
   /**
@@ -278,6 +322,7 @@ class VideoEntry {
   createAutoplayIcon_() {
     const doc = this.ampdoc_.win.document;
     const icon = doc.createElement('i-amp-video-eq');
+
     icon.classList.add('amp-video-eq');
     // Four columns for the equalizer.
     for (let i = 1; i <= 4; i++) {

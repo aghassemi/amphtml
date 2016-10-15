@@ -65,6 +65,7 @@ export function installVideo(win) {
       // Disable video preload in prerender mode.
       this.video_.setAttribute('preload', 'none');
       this.propagateAttributes(['poster', 'controls'], this.video_);
+      this.forwardEvents([VideoEvents.PAUSE, VideoEvents.PLAY], this.video_);
       this.applyFillContent(this.video_, true);
       this.element.appendChild(this.video_);
 
@@ -78,6 +79,7 @@ export function installVideo(win) {
 
     /** @override */
     layoutCallback() {
+
       this.video_ = dev().assertElement(this.video_);
 
       if (!this.isVideoSupported_()) {
@@ -112,11 +114,6 @@ export function installVideo(win) {
               dev().assertElement(child));
         }
         this.video_.appendChild(child);
-      });
-
-      // Dispatch a user tap event on click of the player.
-      listen(this.video_, 'click', () => {
-        this.element.dispatchCustomEvent(VideoEvents.USER_TAP);
       });
 
       // loadPromise for media elements listens to `loadstart`
