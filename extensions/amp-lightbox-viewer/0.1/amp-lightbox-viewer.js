@@ -25,6 +25,7 @@ import {resourcesForDoc} from '../../../src/resources';
 import {toggle} from '../../../src/style';
 import {listen} from '../../../src/event-helper';
 import {LightboxManager} from './service/lightbox-manager-impl';
+import {viewerForDoc} from '../../../src/viewer';
 
 /** @const */
 const TAG = 'amp-lightbox-viewer';
@@ -113,6 +114,8 @@ export class AmpLightboxViewer extends AMP.BaseElement {
     const mask = this.win.document.createElement('div');
     mask.classList.add('-amp-lbv-mask');
     this.container_.appendChild(mask);
+    const toggleControls = this.toggleControls_.bind(this);
+    listen(this.container_, 'click', toggleControls);
   }
 
   /**
@@ -124,8 +127,6 @@ export class AmpLightboxViewer extends AMP.BaseElement {
     this.descriptionBox_ = this.win.document.createElement('div');
     this.descriptionBox_.classList.add('amp-lbv-desc-box');
 
-    const toggleDescription = this.toggleDescriptionBox_.bind(this);
-    listen(this.container_, 'click', toggleDescription);
     this.container_.appendChild(this.descriptionBox_);
   }
 
@@ -133,11 +134,15 @@ export class AmpLightboxViewer extends AMP.BaseElement {
    * Toggle description box if it has text content
    * @private
    */
-  toggleDescriptionBox_() {
-    if (!this.descriptionBox_.textContent) {
-      return;
+  toggleControls_(ShowImmediate) {
+    if (ShowImmediate == true || this.container_.classList.contains('-amp-lbv-hideControls')) {
+      this.container_.classList.add('-amp-lbv-hideControls-immediate');
+      this.container_.classList.remove('-amp-lbv-hideControls');
+    } else {
+      this.container_.classList.remove('-amp-lbv-hideControls-immediate');
+      this.container_.classList.toggle('-amp-lbv-hideControls');
     }
-    this.descriptionBox_.classList.toggle('hide');
+
   }
 
   /**
@@ -153,10 +158,10 @@ export class AmpLightboxViewer extends AMP.BaseElement {
 
     // TODO(aghassemi): i18n and customization. See https://git.io/v6JWu
     this.buildButton_('Next', 'amp-lbv-button-next', next);
-    this.buildButton_('Previous', 'amp-lbv-button-prev', prev);
-    this.buildButton_('Close', 'amp-lbv-button-close', close);
+    this.buildButton_('Previous', 'amp-lbv-button-prev', prev, true);
+    this.buildButton_('Close', 'amp-lbv-button-close', close, true);
     this.buildButton_('Gallery', 'amp-lbv-button-gallery',
-        openGallery);
+        openGallery, true);
 
     this.container_.setAttribute('no-prev', '');
     this.container_.setAttribute('no-next', '');
@@ -169,7 +174,7 @@ export class AmpLightboxViewer extends AMP.BaseElement {
    * @param {!function()} action function to call when tapped
    * @private
    */
-  buildButton_(label, className, action) {
+  buildButton_(label, className, action, top) {
     const button = this.win.document.createElement('div');
 
     button.setAttribute('role', 'button');
@@ -179,6 +184,10 @@ export class AmpLightboxViewer extends AMP.BaseElement {
       action();
       event.stopPropagation();
     });
+    if (top) {
+      const p = this.getViewport().paddingTop_ || 0;
+      button.style.top = p + 'px';
+    }
 
     this.container_.appendChild(button);
   }
@@ -218,13 +227,13 @@ export class AmpLightboxViewer extends AMP.BaseElement {
     }
 
     const updateViewerPromise = this.updateViewer_(element);
-    this.getViewport().enterLightboxMode();
 
     toggle(this.element, true);
     this.active_ = true;
 
     this.win.document.documentElement.addEventListener(
         'keydown', this.boundHandleKeyboardEvents_);
+
 
     return updateViewerPromise;
   }
@@ -240,7 +249,7 @@ export class AmpLightboxViewer extends AMP.BaseElement {
 
     toggle(this.element, false);
     this.tearDownElement_(this.activeElement_);
-    this.getViewport().leaveLightboxMode();
+    //this.getViewport().leaveLightboxMode();
 
     this.activeElement_ = null;
     this.active_ = false;
@@ -321,8 +330,22 @@ export class AmpLightboxViewer extends AMP.BaseElement {
     if (newElement.__AMP__RESOURCE) {
       newElement.__AMP__RESOURCE.setInViewport(true);
       resourcesForDoc(this.element).scheduleLayout(newElement, newElement);
+      resourcesForDoc(this.element).scheduleResume(newElement, newElement);
     }
 
+    const viewer = viewerForDoc(this.element);
+    this.toggleControls_(true);
+    if (viewer.isVisible()) {
+      setTimeout(() => {
+        this.toggleControls_();
+      }, 2000);
+    } else {
+      viewer.onVisibilityChanged(() => {
+        setTimeout(() => {
+          this.toggleControls_();
+        }, 2000);
+      });
+    }
     return updateControlsPromise;
   }
 
@@ -339,10 +362,7 @@ export class AmpLightboxViewer extends AMP.BaseElement {
       // update description box
       this.descriptionBox_.textContent = descText;
     });
-    // add click event to current element to trigger discription box
-    const toggleDescription = this.toggleDescriptionBox_.bind(this);
-    this.elementUnlisten_ =
-        listen(element, 'click', toggleDescription);
+
   }
 
   /**
@@ -351,6 +371,10 @@ export class AmpLightboxViewer extends AMP.BaseElement {
    * @private
    */
   tearDownElement_(element) {
+    if (element.__AMP__RESOURCE) {
+      element.__AMP__RESOURCE.setInViewport(false);
+      resourcesForDoc(this.element).schedulePause(element, element);
+    }
     this.vsync_.mutate(() => {
       this.updateStackingContext_(element, /* reset */ true);
       element.classList.remove('amp-lightboxed');
@@ -471,6 +495,8 @@ export class AmpLightboxViewer extends AMP.BaseElement {
     // Build gallery
     this.gallery_ = this.win.document.createElement('div');
     this.gallery_.classList.add('-amp-lbv-gallery');
+    const p = this.getViewport().paddingTop_ || 0;
+    this.gallery_.style.top = p + 50 + 'px';
 
     // Initialize thumbnails
     this.updateThumbnails_();
@@ -481,8 +507,7 @@ export class AmpLightboxViewer extends AMP.BaseElement {
 
     // Add go back button
     const back = this.closeGallery_.bind(this);
-    this.buildButton_('Back', 'amp-lbv-button-back', back);
-
+    this.buildButton_('Back', 'amp-lbv-button-back', back, true);
   }
 
   /**
@@ -527,6 +552,7 @@ export class AmpLightboxViewer extends AMP.BaseElement {
       this.closeGallery_();
       event.stopPropagation();
     };
+
     element.addEventListener('click', redirect);
     return element;
   }

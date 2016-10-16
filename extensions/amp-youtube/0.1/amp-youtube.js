@@ -125,6 +125,10 @@ class AmpYoutube extends AMP.BaseElement {
       if (!params['controls']) {
         params['controls'] = '0';
       }
+
+      if (!params['iv_load_policy']) {
+        params['iv_load_policy'] = '3';
+      }
     }
 
     this.element.setAttribute('controls', '');

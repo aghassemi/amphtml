@@ -122,8 +122,9 @@ export class VideoManager {
         }
       };
       const viewport = viewportForDoc(this.ampdoc_);
-      viewport.onScroll(scrollListener);
-      viewport.onChanged(scrollListener);
+      setInterval(scrollListener.bind(this), 80);
+      // viewport.onScroll(scrollListener);
+      // viewport.onChanged(scrollListener);
       this.scrollListenerInstalled_ = true;
     }
   }
@@ -351,10 +352,19 @@ class VideoEntry {
    * @package
    */
   updateVisibility() {
-    const wasVisible = this.isVisible_;
+    this.wasVisible_ = this.isVisible_;
 
     // Measure if video is now in viewport and what percentage of it is visible.
     const measure = () => {
+      const lightboxMode = this.ampdoc_.win.document.body.classList.contains('-amp-lightboxed-ancestor');
+      if (lightboxMode) {
+        if (this.video.element.classList.contains('amp-lightboxed')) {
+          this.isVisible_ = true;
+        } else {
+          this.isVisible_ = false;
+        }
+        return;
+      }
       if (!this.video.isInViewport()) {
         this.isVisible_ = false;
         return;
@@ -372,9 +382,9 @@ class VideoEntry {
 
     // Mutate if visibility changed from previous state
     const mutate = () => {
-      if (this.isVisible_ != wasVisible) {
+      //if (this.isVisible_ != this.wasVisible_) {
         this.videoVisibilityChanged_();
-      }
+      //}
     };
 
     this.vsync_.run({

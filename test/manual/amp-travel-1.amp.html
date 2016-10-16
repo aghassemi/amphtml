@@ -1,0 +1,117 @@
+<!doctype html>
+<html ⚡>
+<head>
+  <meta charset="utf-8">
+  <title>Video Autoplay</title>
+  <link rel="canonical" href="amps.html" >
+  <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+  <link href='https://fonts.googleapis.com/css?family=Questrial' rel='stylesheet' type='text/css'>
+  <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
+  <script async src="../../dist/amp.js"></script>
+  <script async src="https://cdn.ampproject.org/viewer/google/v5.js"></script>
+  <script async custom-element="amp-youtube" src="../../dist/v0/amp-youtube-0.1.max.js"></script>
+  <script async custom-element="amp-lightbox-viewer" src="../../dist/v0/amp-lightbox-viewer-0.1.max.js"></script>
+  <style amp-custom>
+    body {
+      font-family: Verdana, sans-serif;
+      color: #444;
+      font-size: 10pt;
+    }
+    @font-face {
+      font-family: 'EmiratesSM';
+      font-style: normal;
+      font-weight: 400;
+      src: url(https://cdn.ek.aero/system/responsive/css/ekfonts/Emirates-Light.woff) format('truetype');
+    }
+    header {
+      position:relative;
+      height: 88px;
+      font-family: 'EmiratesSM',helvetica,arial,sans-serif!important;
+      color: white;
+      background: black;
+      padding-left: 120px;
+      font-size: 16pt;
+      border-bottom: solid #c00 1px;
+    }
+    header div {
+      padding-top: 20px;
+    }
+    h2, h3 {
+      font-family: 'EmiratesSM',helvetica,arial,sans-serif!important;
+      color: #c00;
+      margin:0;
+    }
+    h2 {
+      background-color: #fafafa;
+      padding-top: 40px;
+      padding-bottom: 10px;
+      padding-left: 5px;
+    }
+    h3 {
+      font-size: 0.9em;
+      margin: 10px 0;
+    }
+    article {
+      margin: 0px 10px;
+    }
+
+    footer {
+      position: relative;
+    }
+
+    footer amp-video {
+      opacity: 0.3;
+    }
+
+    footer p {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: #F50057;
+      margin: auto;
+    }
+
+    .logo {
+      position: absolute;
+      left: 0;
+      z-index: 1;
+      top: -30px;
+    }
+  </style>
+</head>
+<body>
+  <amp-lightbox-viewer id="whatever" layout="nodisplay"></amp-lightbox-viewer>
+  <header role="banner">
+      <amp-img lightbox="none" class="logo" src=http://www.emirates.com/us/english/images/EK-LOGO-US_tcm272-2668031.png layout="fixed" width=99 height=138></amp-img>
+      <div>Emirates Travel Blog</div>
+  </header>
+  <main>
+    <section>
+    <h2>Norway in one day</h2>
+    <amp-youtube
+        aria-describedby="c0"
+        autoplay
+        data-videoid="ZJ_E7lWrKRc"
+        width="16"
+        height="9"
+        layout="responsive">
+    </section>
+    <article>
+      <p id=c0>
+        Norway (Bokmål), officially the Kingdom of Norway, is a sovereign and unitary monarchy whose territory comprises the western portion of the Scandinavian Peninsula plus the island Jan Mayen and the archipelago of Svalbard.
+      </p>
+      <h3>Christmas in Norway</h3>
+      <amp-img aria-describedby="c1" src="https://res-4.cloudinary.com/simpleview/image/upload/c_fill,f_auto,q_65,w_1600/v1/clients/norway/Christmas-shopping-at-Roros-norway_4df73061-0f32-4f3f-8d35-0f88fa121632.jpg"
+      layout=responsive width=16 height=10></amp-img>
+        <p id=c1>
+        Christmas in Norway lasts more than a few days: it’s a whole season with specific rituals and preparations. The snow that covers most of the country and the dark nights add a magical touch to the holiday spirit.</p>
+      <h3>Beauty of Norway</h3>
+      <amp-video aria-describedby=c2 autoplay src="https://player.vimeo.com/external/185472558.hd.mp4?s=066abec8ddda36a12be7cb4fe28cf599f61bdc64&profile_id=174&oauth2_token_id=316429018"
+       layout=responsive width=16 height=9></amp-video>
+       <p id=c2>It is often said that the northern parts of Norway is the best places in the world to see the northern light. If we are to be honest, that is only partially true, as the lights can be just as visible from destinations outside of Norway. </p>
+       <h3>Fjord Norway</h3>
+       <p>Western Norway is a region of narrow fjords cutting into tall mountains, of waterfalls cascading down mountainsides, and of glaciers that never melt. Spectacular architecture and exiting food made from local produce enhance the experience.</p>
+    </article>
+  </main>
+</body>
+</html>
