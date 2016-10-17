@@ -25,7 +25,6 @@ import {
   installExtensionsInShadowDoc,
   installExtensionsService,
   registerExtension,
-  waitForExtension,
 } from './service/extensions-impl';
 import {ampdocServiceFor} from './ampdoc';
 import {cssText} from '../build/css';
@@ -271,26 +270,28 @@ function adoptShared(global, opts, callback) {
       if (global.location.toString().indexOf('video_mode') < 0) {
         return;
       }
+      const elements = global.document.querySelectorAll('amp-video, amp-youtube');
+      const video = elements[0];
+      if (!video) { return; }
+
       toggleExperiment(global, 'amp-lightbox-viewer', true);
       toggleExperiment(global, 'amp-lightbox-viewer-auto', true);
 
       global.document.documentElement.style.opacity = '0';
       global.document.body.style.background = 'black';
-      const elements = global.document.querySelectorAll('amp-video, amp-youtube');
-      const video = elements[0];
-      if (!video) { return; }
 
-      const m = setInterval(() => {
-        const lightbox = global.document.querySelector('amp-lightbox-viewer');
-        if (!lightbox || !lightbox.implementation_) {
-          return;
-        }
-        clearInterval(m);
-        global.document.documentElement.style.opacity = '1';
-        global.document.body.style.background = '';
-        lightbox.implementation_.activate({source: video});
-      }, 20);
-
+      extensionsFor(global).waitForExtension('amp-lightbox-viewer').then(() => {
+        const m = setInterval(() => {
+          const lightbox = global.document.querySelector('amp-lightbox-viewer');
+          if (!lightbox || !lightbox.implementation_) {
+            return;
+          }
+          clearInterval(m);
+          global.document.documentElement.style.opacity = '1';
+          global.document.body.style.background = '';
+          lightbox.implementation_.activate({source: video});
+        }, 20);
+      });
     });
 
   }

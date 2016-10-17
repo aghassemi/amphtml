@@ -26,6 +26,8 @@ import {toggle} from '../../../src/style';
 import {listen} from '../../../src/event-helper';
 import {LightboxManager} from './service/lightbox-manager-impl';
 import {viewerForDoc} from '../../../src/viewer';
+import {Gestures} from '../../../src/gesture';
+import {SwipeYRecognizer, SwipeXRecognizer} from '../../../src/gesture-recognizers';
 
 /** @const */
 const TAG = 'amp-lightbox-viewer';
@@ -77,6 +79,25 @@ export class AmpLightboxViewer extends AMP.BaseElement {
     /** @const @private {!Element} */
     this.container_ = this.win.document.createElement('div');
     this.container_.classList.add('-amp-lbv');
+    const gestures = Gestures.get(this.container_);
+    gestures.onGesture(SwipeYRecognizer, e => {
+      if (e.data.last) {
+        this.onSwipeEnd_(e.data);
+      }
+    });
+
+    this.container_.addEventListener('transitionend', () => {
+      if (!viewerForDoc(this.element).isVisible()) {
+        this.getViewport().leaveLightboxMode();
+        return;
+      }
+
+      if (this.container_.classList.contains('-amp-lbv-hideControls')) {
+        this.getViewport().enterLightboxMode();
+      } else {
+        this.getViewport().leaveLightboxMode();
+      }
+    });
 
     /** @private {?Element} */
     this.descriptionBox_ = null;
@@ -105,6 +126,15 @@ export class AmpLightboxViewer extends AMP.BaseElement {
     return Promise.resolve();
   }
 
+
+  onSwipeEnd_(data) {
+    if (data.deltaY < 0) {
+      this.next_();
+    } else {
+      this.previous_();
+    }
+  }
+
   /**
    * Builds the page mask and appends it to the container.
    * @private
@@ -114,8 +144,11 @@ export class AmpLightboxViewer extends AMP.BaseElement {
     const mask = this.win.document.createElement('div');
     mask.classList.add('-amp-lbv-mask');
     this.container_.appendChild(mask);
-    const toggleControls = this.toggleControls_.bind(this);
-    listen(this.container_, 'click', toggleControls);
+
+    listen(this.container_, 'click', () => {
+      const show = this.container_.classList.contains('-amp-lbv-hideControls');
+      this.toggleControls_(show);
+    });
   }
 
   /**
@@ -134,13 +167,16 @@ export class AmpLightboxViewer extends AMP.BaseElement {
    * Toggle description box if it has text content
    * @private
    */
-  toggleControls_(ShowImmediate) {
-    if (ShowImmediate == true || this.container_.classList.contains('-amp-lbv-hideControls')) {
+  toggleControls_(show) {
+    if (this.t_) {
+      clearTimeout(this.t_);
+    }
+    if (show) {
       this.container_.classList.add('-amp-lbv-hideControls-immediate');
       this.container_.classList.remove('-amp-lbv-hideControls');
     } else {
       this.container_.classList.remove('-amp-lbv-hideControls-immediate');
-      this.container_.classList.toggle('-amp-lbv-hideControls');
+      this.container_.classList.add('-amp-lbv-hideControls');
     }
 
   }
@@ -247,9 +283,13 @@ export class AmpLightboxViewer extends AMP.BaseElement {
       return Promise.resolve();
     }
 
+    if (this.t_) {
+      clearTimeout(this.t_);
+    }
+
     toggle(this.element, false);
     this.tearDownElement_(this.activeElement_);
-    //this.getViewport().leaveLightboxMode();
+    this.getViewport().leaveLightboxMode();
 
     this.activeElement_ = null;
     this.active_ = false;
@@ -336,13 +376,24 @@ export class AmpLightboxViewer extends AMP.BaseElement {
     const viewer = viewerForDoc(this.element);
     this.toggleControls_(true);
     if (viewer.isVisible()) {
-      setTimeout(() => {
-        this.toggleControls_();
+      if (this.t_) {
+        clearTimeout(this.t_);
+      }
+      this.t_ = setTimeout(() => {
+        this.toggleControls_(false);
       }, 2000);
     } else {
       viewer.onVisibilityChanged(() => {
-        setTimeout(() => {
-          this.toggleControls_();
+        if (this.t_) {
+          clearTimeout(this.t_);
+        }
+
+        this.toggleControls_(true);
+
+        this.t_ = setTimeout(() => {
+          if (viewer.isVisible()) {
+            this.toggleControls_(false);
+          }
         }, 2000);
       });
     }
@@ -356,13 +407,23 @@ export class AmpLightboxViewer extends AMP.BaseElement {
    */
   setupElement_(element) {
     const descText = this.manager_.getDescription(element);
+    element.style.opacity = 0;
     this.vsync_.mutate(() => {
       this.updateStackingContext_(element, /* reset */ false);
       element.classList.add('amp-lightboxed');
+      setTimeout(function() {
+        element.style.opacity = 1;
+      }, 1);
       // update description box
       this.descriptionBox_.textContent = descText;
     });
 
+    this.gestures = Gestures.get(element);
+    this.gestures.onGesture(SwipeYRecognizer, e => {
+      if (e.data.last) {
+        this.onSwipeEnd_(e.data);
+      }
+    });
   }
 
   /**
@@ -375,6 +436,10 @@ export class AmpLightboxViewer extends AMP.BaseElement {
       element.__AMP__RESOURCE.setInViewport(false);
       resourcesForDoc(this.element).schedulePause(element, element);
     }
+    if (this.gestures) {
+      this.gestures.cleanup();
+    }
+
     this.vsync_.mutate(() => {
       this.updateStackingContext_(element, /* reset */ true);
       element.classList.remove('amp-lightboxed');
@@ -547,6 +612,12 @@ export class AmpLightboxViewer extends AMP.BaseElement {
     imgElement.classList.add('-amp-lbv-gallery-thumbnail-img');
     imgElement.setAttribute('src', thumbnailObj.url);
     element.appendChild(imgElement);
+    if (isVideoElement(thumbnailObj.element)) {
+      const overlay = this.win.document.createElement('div');
+      overlay.classList.add('-amp-lbv-gallery-thumbnail-overlay');
+      overlay.setAttribute('video','');
+      element.appendChild(overlay);
+    }
     const redirect = event => {
       this.updateViewer_(thumbnailObj.element);
       this.closeGallery_();
@@ -558,6 +629,11 @@ export class AmpLightboxViewer extends AMP.BaseElement {
   }
 }
 
+const VIDEO_TAGS = {'AMP-VIDEO': true, 'AMP-YOUTUBE': true};
+
+function isVideoElement(elem) {
+  return elem.tagName in VIDEO_TAGS;
+}
 /**
  * @private visible for testing.
  */

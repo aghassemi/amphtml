@@ -208,10 +208,21 @@ export class LightboxManager {
    * @private
    */
   getThumbnailUrl_(element, index) {
+
     if (element.tagName == 'AMP-IMG') {
       return element.getAttribute('src');
-    } else {
-      return 'https://placehold.it/128x128?text=' + index;
     }
+
+    const poster = element.getAttribute('poster');
+    if (poster) {
+      return poster;
+    }
+
+    const placeholder = element.querySelector('[placeholder]');
+    if (placeholder && (placeholder.tagName == 'AMP-IMG' || placeholder.tagName == 'IMG')) {
+      return placeholder.getAttribute('src');
+    }
+
+    return 'https://placehold.it/128x128?text=' + index;
   }
 }

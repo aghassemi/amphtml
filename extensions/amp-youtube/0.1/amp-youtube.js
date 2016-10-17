@@ -76,7 +76,13 @@ class AmpYoutube extends AMP.BaseElement {
     // because the player is pretty heavy.
     // This will still start loading before they become visible, but it
     // won't typically load a large number of embeds.
-    return 0.75;
+    return true;
+  }
+
+  /** @override */
+  getPriority() {
+    // Loads after other content.
+    return -1;
   }
 
   /** @override */
@@ -98,6 +104,7 @@ class AmpYoutube extends AMP.BaseElement {
     if (!this.getPlaceholder()) {
       this.buildImagePlaceholder_();
     }
+    this.layoutCallback();
   }
 
   /** @return {string} */
@@ -134,6 +141,7 @@ class AmpYoutube extends AMP.BaseElement {
     this.element.setAttribute('controls', '');
 
     params['playsinline'] = '1';
+
     src = addParamsToUrl(src, params);
 
     iframe.setAttribute('frameborder', '0');

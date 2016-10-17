@@ -73,7 +73,7 @@ export class VideoManager {
           entry.video.element.dispatchCustomEvent(VideoEvents.USER_TAP);
         }
       }
-    }, 100);
+    }, 30);
   }
 
   /**
@@ -352,10 +352,11 @@ class VideoEntry {
    * @package
    */
   updateVisibility() {
-    this.wasVisible_ = this.isVisible_;
+
 
     // Measure if video is now in viewport and what percentage of it is visible.
     const measure = () => {
+      this.wasVisible_ = this.isVisible_;
       const lightboxMode = this.ampdoc_.win.document.body.classList.contains('-amp-lightboxed-ancestor');
       if (lightboxMode) {
         if (this.video.element.classList.contains('amp-lightboxed')) {
@@ -382,9 +383,9 @@ class VideoEntry {
 
     // Mutate if visibility changed from previous state
     const mutate = () => {
-      //if (this.isVisible_ != this.wasVisible_) {
+      if (this.isVisible_ != this.wasVisible_) {
         this.videoVisibilityChanged_();
-      //}
+      }
     };
 
     this.vsync_.run({
