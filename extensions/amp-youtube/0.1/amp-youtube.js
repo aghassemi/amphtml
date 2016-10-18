@@ -104,7 +104,6 @@ class AmpYoutube extends AMP.BaseElement {
     if (!this.getPlaceholder()) {
       this.buildImagePlaceholder_();
     }
-    this.layoutCallback();
   }
 
   /** @return {string} */

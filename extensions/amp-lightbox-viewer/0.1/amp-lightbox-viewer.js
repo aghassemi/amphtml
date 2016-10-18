@@ -433,8 +433,8 @@ export class AmpLightboxViewer extends AMP.BaseElement {
    */
   tearDownElement_(element) {
     if (element.__AMP__RESOURCE) {
-      element.__AMP__RESOURCE.setInViewport(false);
-      resourcesForDoc(this.element).schedulePause(element, element);
+      //element.__AMP__RESOURCE.setInViewport(false);
+      //resourcesForDoc(this.element).schedulePause(element, element);
     }
     if (this.gestures) {
       this.gestures.cleanup();

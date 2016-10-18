@@ -123,8 +123,8 @@ export class VideoManager {
       };
       const viewport = viewportForDoc(this.ampdoc_);
       setInterval(scrollListener.bind(this), 80);
-      // viewport.onScroll(scrollListener);
-      // viewport.onChanged(scrollListener);
+      //viewport.onScroll(scrollListener);
+      viewport.onChanged(scrollListener);
       this.scrollListenerInstalled_ = true;
     }
   }
@@ -173,6 +173,11 @@ class VideoEntry {
     listenOncePromise(element, VideoEvents.LOAD)
       .then(() => this.videoLoaded_());
 
+    const viewer = viewerForDoc(this.ampdoc_);
+    viewer.onVisibilityChanged(() => {
+      this.updateVisibility();
+    });
+
     // Currently we only register after video player is build.
     this.videoBuilt_();
   }
@@ -194,6 +199,7 @@ class VideoEntry {
    */
   videoLoaded_() {
     this.loaded_ = true;
+    this.updateVisibility();
     if (this.isVisible_) {
       // Handles the case when the video becomes visible before loading
       this.loadedVideoVisibilityChanged_();
@@ -357,6 +363,10 @@ class VideoEntry {
     // Measure if video is now in viewport and what percentage of it is visible.
     const measure = () => {
       this.wasVisible_ = this.isVisible_;
+      if (!viewerForDoc(this.ampdoc_).isVisible()) {
+        this.isVisible_ = false;
+        return;
+      }
       const lightboxMode = this.ampdoc_.win.document.body.classList.contains('-amp-lightboxed-ancestor');
       if (lightboxMode) {
         if (this.video.element.classList.contains('amp-lightboxed')) {
@@ -388,10 +398,12 @@ class VideoEntry {
       }
     };
 
-    this.vsync_.run({
-      measure,
-      mutate,
-    });
+    measure();
+    mutate();
+    // this.vsync_.run({
+    //   measure,
+    //   mutate,
+    // });
   }
 }
 
