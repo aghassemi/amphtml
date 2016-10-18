@@ -418,8 +418,8 @@ export class AmpLightboxViewer extends AMP.BaseElement {
       this.descriptionBox_.textContent = descText;
     });
 
-    this.gestures = Gestures.get(element);
-    this.gestures.onGesture(SwipeYRecognizer, e => {
+    element.lbGestures_ = Gestures.get(element);
+    element.lbGestures_.onGesture(SwipeYRecognizer, e => {
       if (e.data.last) {
         this.onSwipeEnd_(e.data);
       }
@@ -436,8 +436,8 @@ export class AmpLightboxViewer extends AMP.BaseElement {
       //element.__AMP__RESOURCE.setInViewport(false);
       //resourcesForDoc(this.element).schedulePause(element, element);
     }
-    if (this.gestures) {
-      this.gestures.cleanup();
+    if (element.lbGestures_) {
+      element.lbGestures_.cleanup();
     }
 
     this.vsync_.mutate(() => {

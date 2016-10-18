@@ -147,6 +147,7 @@ export class Gestures {
     this.element_.removeEventListener('touchmove', this.boundOnTouchMove_);
     this.element_.removeEventListener('touchcancel', this.boundOnTouchCancel_);
     this.pass_.cancel();
+    this.element_[PROP_] = null;
   }
 
   /**
