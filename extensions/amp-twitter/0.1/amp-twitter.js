@@ -20,7 +20,7 @@ import {isLayoutSizeDefined} from '../../../src/layout';
 import {listenFor} from '../../../src/iframe-helper';
 import {removeElement} from '../../../src/dom';
 import * as st from '../../../src/style';
-
+import {vsyncFor} from '../../../src/vsync';
 
 import {viewportForDoc} from '../../../src/viewport';
 
@@ -96,11 +96,23 @@ AMP.registerElement('amp-twitter', AmpTwitter);
 function moveThis() {
   const vp = viewportForDoc(window.document);
   const x = document.getElementById('hero');
-  vp.onScroll((e) => {
-    const y = vp.getScrollTop();
-    console.log(y);
+  const vs = vsyncFor(window);
+  vp.onScroll(doit);
+  let prev;
+  function doit() {
+
+    let y = vp.getScrollTop();
+    y = Math.round(y);
+    if (Math.abs(prev - y) < 2) {
+      return;
+    }
+    prev = y;
+    if (y <= 0) {
+      return;
+    }
     st.setStyles(x, {
-      transform: 'translateY(' + y * 0.5 + 'px)',
+      transform: 'translateY(' + Math.round(y * 0.5) + 'px)',
     });
-  });
+
+  }
 }

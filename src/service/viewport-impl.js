@@ -1744,7 +1744,7 @@ function getViewportType(win, viewer) {
     viewportType = ViewportType.NATURAL_IOS_EMBED;
   }
   dev().fine(TAG_, '- viewportType:', viewportType);
-  return viewportType;
+  return ViewportType.NATURAL_IOS_EMBED;
 }
 
 /**
