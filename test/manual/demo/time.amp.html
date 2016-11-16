@@ -97,11 +97,7 @@
       overflow-y: auto;
       height: 100vh;
       width: 100vw;
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 0;
-      bottom: 0;
+      -webkit-overflow-scrolling: auto;
     }
 
     amp-anim {
@@ -210,8 +206,7 @@
 </head>
 
 <body>
-  <div class="parallax">
-
+  <div id="view" class="parallax">
     <amp-img height="50vh" layout="fixed-height" src=img/bart.png hero-image></amp-img>
     <div class="content">
       <div id="hero-desc" class="caption padded-w padded-h secondary-color secondary-font attribution-title">
