@@ -36,9 +36,6 @@ export function installParallax(global) {
       let factor = element.getAttribute('parallax');
       factor = factor ? parseFloat(factor) : 0.5;
       const newY = (state.scrollTop * factor).toFixed(2);
-      if (newY < 0) {
-        return;
-      }
       st.setStyles(element, {
         transform: 'translate3d(0,' + newY + 'px,0)',
       });
