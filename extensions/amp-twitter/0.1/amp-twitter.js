@@ -97,21 +97,21 @@ function moveThis() {
   const vp = viewportForDoc(window.document);
   const x = document.getElementById('hero');
   const vs = vsyncFor(window);
-  vp.onScroll(doit);
+  requestAnimationFrame(doit);
   let prev;
   function doit() {
-
-    let y = vp.getScrollTop();
+    requestAnimationFrame(doit);
+    let y = x.getBoundingClientRect().top;
     y = Math.round(y);
     if (Math.abs(prev - y) < 2) {
       return;
     }
     prev = y;
-    if (y <= 0) {
+    if (y >= 0) {
       return;
     }
     st.setStyles(x, {
-      transform: 'translateY(' + Math.round(y * 0.5) + 'px)',
+      transform: 'translateY(' + Math.round(y * -0.5) + 'px)',
     });
 
   }
