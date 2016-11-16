@@ -19,10 +19,7 @@ import {getIframe, preloadBootstrap} from '../../../src/3p-frame';
 import {isLayoutSizeDefined} from '../../../src/layout';
 import {listenFor} from '../../../src/iframe-helper';
 import {removeElement} from '../../../src/dom';
-import * as st from '../../../src/style';
-import {vsyncFor} from '../../../src/vsync';
 
-import {viewportForDoc} from '../../../src/viewport';
 
 class AmpTwitter extends AMP.BaseElement {
 
@@ -32,8 +29,6 @@ class AmpTwitter extends AMP.BaseElement {
 
     /** @private {?HTMLIFrameElement} */
     this.iframe_ = null;
-
-    moveThis();
   }
 
   /**
@@ -92,27 +87,3 @@ class AmpTwitter extends AMP.BaseElement {
 };
 
 AMP.registerElement('amp-twitter', AmpTwitter);
-
-function moveThis() {
-  const vp = viewportForDoc(window.document);
-  const x = document.getElementById('hero');
-  const vs = vsyncFor(window);
-  requestAnimationFrame(doit);
-  let prev;
-  function doit() {
-    requestAnimationFrame(doit);
-    let y = x.getBoundingClientRect().top;
-    y = Math.round(y);
-    if (Math.abs(prev - y) < 2) {
-      return;
-    }
-    prev = y;
-    if (y >= 0) {
-      return;
-    }
-    st.setStyles(x, {
-      transform: 'translateY(' + Math.round(y * -0.5) + 'px)',
-    });
-
-  }
-}

@@ -66,8 +66,9 @@ import {installVideoManagerForDoc} from './service/video-manager-impl';
 import {installViewerServiceForDoc, setViewerVisibilityState,} from
     './service/viewer-impl';
 import {installViewportServiceForDoc} from './service/viewport-impl';
-import {installVsyncService} from './service/vsync-impl';
+import {installVsyncService, vsyncFor} from './service/vsync-impl';
 import {installXhrService} from './service/xhr-impl';
+import {installParallax} from './parallax';
 import {isExperimentOn, toggleExperiment} from './experiments';
 import {parseUrl} from './url';
 import {platformFor} from './platform';
@@ -130,8 +131,8 @@ export function installAmpdocServices(ampdoc, opt_initParams) {
  */
 export function installBuiltins(global) {
   installBuiltinElements(global);
+  installParallax(global);
 }
-
 
 /**
  * Applies the runtime to a given global scope for a single-doc mode.
