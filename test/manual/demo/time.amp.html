@@ -72,6 +72,7 @@
   <script async src="../../../dist/amp.js"></script>
   <script async custom-element="amp-anim" src="../../../dist/v0/amp-anim-0.1.max.js"></script>
   <script async custom-element="amp-twitter" src="../../../dist/v0/amp-twitter-0.1.max.js"></script>
+  <script async custom-element="amp-carousel" src="../../../dist/v0/amp-carousel-0.1.max.js"></script>
   <style amp-custom>
     h1,
     h2,
@@ -84,6 +85,7 @@
 
     body {
       font-family: Georgia, serif;
+      background: white;
     }
 
     amp-anim {
@@ -188,11 +190,151 @@
     .content {
       background: #FFF;
     }
+
+    .footer {
+      font-family: Roboto, Open Sans, sans-serif;
+      padding: 15px;
+    }
+
+    .footer-separator {
+      border-color: rgb(200, 200, 200);
+    }
+
+    .footer .more,
+    .footer .related {
+      letter-spacing: 2px;
+      text-align: center;
+      padding: 1em;
+      font-size: 0.8em;
+      font-weight: bold;
+    }
+
+    .footer .more {
+      color: rgb(154, 154, 154);
+    }
+
+    .footer .related {
+      color: black;
+    }
+
+    .footer .story-text-publisher amp-img img {
+      object-position: 0px 0px;
+      object-fit: contain;
+    }
+
+    .footer .story-text-publisher {
+      padding-bottom: 5px;
+    }
+
+    .footer .story-image amp-img img {
+      border-radius: 3px;
+      object-fit: cover;
+    }
+
+    .footer .story-text-title {
+      font-weight: bold;
+    }
+
+    .story {
+      display: flex;
+      flex-direction: row;
+      padding: 10px 0;
+      overflow: hidden;
+    }
+
+    .story-text {
+      display: flex;
+      flex: 3;
+      padding-right: 3px;
+      flex-direction: column;
+    }
+
+    .story-image {
+      flex: 1;
+    }
+
+    .story-text-title {
+      flex: 1;
+    }
+
+    .story-text-desciption {
+      font-size: 0.95em;
+      color: rgb(154, 154, 154);
+      display: none;
+      line-height: 1.3em;
+      font-weight: normal;
+    }
+
+    .story-text-footer {
+      font-size: 0.7em;
+      color: rgb(154, 154, 154);
+    }
+
+    .footer amp-carousel {
+      overflow: hidden;
+      margin: 10px -9vw;
+    }
+
+    .footer amp-carousel .-amp-scrollable-carousel-container {
+      padding-bottom: 20px;
+      margin-bottom: -20px;
+      text-align: center;
+    }
+
+    .footer amp-carousel .amp-carousel-button {
+      display: none;
+    }
+
+    .tag {
+      font-size: 0.7em;
+      color: rgb(154, 154, 154);
+      border: 1px solid rgb(154, 154, 154);
+      padding: 5px;
+      display: inline-block;
+      margin: 2px 3px;
+    }
+
+    .tags {
+      padding: 0px 8vw;
+    }
+
+    @media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+      body {
+        font-size: 1.3em;
+      }
+    }
+
+    @media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: portrait) {
+      .grid-item {
+        display: inline-block;
+        box-sizing: border-box;
+        width: 48%;
+        padding: 10px;
+      }
+    }
+
+    @media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: landscape) {
+      .grid-item {
+        display: inline-block;
+        box-sizing: border-box;
+        width: 32%;
+        padding: 10px;
+      }
+      #moreFrom .grid-item:nth-of-type(4) {
+        display: none;
+      }
+    }
+
+    @media only screen and (max-device-width: 768px) and (orientation: landscape) {
+      .story-text-desciption {
+        display: block;
+      }
+    }
   </style>
 </head>
 
 <body>
-  <amp-img parallax="0.5" height="50vh" layout="fixed-height" src=img/bart.png hero-image></amp-img>
+  <amp-img parallax="0.5" height="50vh" layout="fixed-height" src=https://s.yimg.com/ny/api/res/1.2/G56jaeG3kXlDSEMyO7i7kg--/YXBwaWQ9aGlnaGxhbmRlcjtzbT0xO3c9ODAw/http://media.zenfs.com/en-US/homerun/time_72/d08279baa1ea5169879ba3d69811570b hero-image></amp-img>
   <div class="content">
     <div id="hero-desc" class="caption padded-w padded-h secondary-color secondary-font attribution-title">
       FOX
@@ -242,6 +384,231 @@
       </article>
     </div>
   </div>
+
+  <div class="separator footer-separator"></div>
+  <div id="moreFrom" class="footer">
+    <div class="more">MORE FROM</div>
+    <div>
+      <amp-img height=20 layout=fixed-height src="img/time_logo.svg">
+    </div>
+
+    <div class="grid">
+      <div class="grid-item">
+        <div class="story">
+          <div class="story-text">
+            <div class="story-text-publisher">
+              <amp-img height=12 layout=fixed-height src="img/time_logo.svg">
+            </div>
+            <div class="story-text-title">Watch Drake and Dave Chappelle Lose it Over a David Blane Trick
+              <div class="story-text-desciption">Tonight, David Blaine premiered his new television special, David Blaine: Beyond Magic.</div>
+            </div>
+            <div class="story-text-footer">
+              5h ago
+            </div>
+          </div>
+          <div class="story-image">
+            <amp-img width=1 height=1 layout=responsive src="https://timedotcom.files.wordpress.com/2016/11/screen-shot-2016-11-16-at-12-31-29-pm.png"></amp-img>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-item">
+        <div class="story">
+          <div class="story-text">
+            <div class="story-text-publisher">
+              <amp-img height=12 layout=fixed-height src="img/time_logo.svg"></amp-img>
+            </div>
+            <div class="story-text-title">Donald Trump's Transition Is Reportedly in Chaos, But He Says It's going `So Smoothly`
+              <div class="story-text-desciption">President-elect Donald Trump rejected claims of chaos and infighting straining his transition, declaring that
+                he is running a “very organized process.”</div>
+            </div>
+            <div class="story-text-footer">
+              6h ago
+            </div>
+          </div>
+          <div class="story-image">
+            <amp-img width=1 height=1 layout=responsive src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR75rbLuzHNTZehvk1jISauu689nTwMwFwYZnx0CrtB714gDx5FrojirMA"></amp-img>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-item">
+        <div class="story">
+          <div class="story-text">
+            <div class="story-text-publisher">
+              <amp-img height=12 layout=fixed-height src="img/time_logo.svg"></amp-img>
+            </div>
+            <div class="story-text-title">Here's Proof That the New Beatuty and the Beast Trailer Pretty Much the Same as the 1991 Trailer
+              <div class="story-text-desciption">The lush new live-action Beauty and the Beast movie trailer, starring a wide-eyed Emma Watson.</div>
+            </div>
+            <div class="story-text-footer">
+              22h ago
+            </div>
+          </div>
+          <div class="story-image">
+            <amp-img width=1 height=1 layout=responsive src="https://timedotcom.files.wordpress.com/2016/11/beauty-and-the-beast.jpeg"></amp-img>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="grid-item">
+        <div class="story">
+          <div class="story-text">
+            <div class="story-text-publisher">
+              <amp-img height=12 layout=fixed-height src="img/time_logo.svg"></amp-img>
+            </div>
+            <div class="story-text-title">LAPD Cheif Says Department Will Not Help With Deportations Under Donald Rrump Administration
+              <div class="story-text-desciption">Los Angeles Police Chief Charlie Beck said Monday that he has no plans to change the LAPD’s stance on immigration
+                enforcement.</div>
+            </div>
+            <div class="story-text-footer">
+              1d ago
+            </div>
+          </div>
+          <div class="story-image">
+            <amp-img width=1 height=1 layout=responsive src="https://s.yimg.com/ny/api/res/1.2/sxChpo3ZAlezlHYKlrFIeg--/YXBwaWQ9aGlnaGxhbmRlcjtzbT0xO3c9ODAw/http://slingstone.zenfs.com/offnetwork/e7629b5c7acdf2dcef2d5232ef410989"></amp-img>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="separator footer-separator"></div>
+  <div class="footer">
+    <div class="related">RELATED STORIES</div>
+    <div>
+      <amp-carousel type="carousel">
+        <div class="tags">
+          <div class="tag">DONALD TRUMP</div>
+          <div class="tag">ENTERTAINMENT</div>
+          <div class="tag">THE SIMPSONS</div>
+          <div class="tag">POLITICIANS</div>
+          <div class="tag">ELECTION</div>
+        </div>
+      </amp-carousel>
+    </div>
+
+    <div class="grid">
+      <div class="grid-item">
+        <div class="story">
+          <div class="story-text">
+            <div class="story-text-publisher">
+              <amp-img height=12 layout=fixed-height src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/GQ_Logo.svg/1024px-GQ_Logo.svg.png"></amp-img>
+            </div>
+            <div class="story-text-title">Donald Trump's 60 Minutes Interview Is the Wrong Way to Cover the Trump Presidency
+              <div class="story-text-desciption">Donald Trump's 60 Minutes Interview Is the Wrong Way to Cover the Trump Presidency ... TRUMP: I would say don't
+                do it, that's terrible, because I'm going to bring this</div>
+            </div>
+            <div class="story-text-footer">
+              5h ago
+            </div>
+          </div>
+          <div class="story-image">
+            <amp-img width=1 height=1 layout=responsive src="http://media.gq.com/photos/58296f41a9546c3d51932280/3:2/w_560/Screen%20Shot%202016-11-14%20at%2012.00.45%20AM.png"></amp-img>
+            </amp-img>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-item">
+        <div class="story">
+          <div class="story-text">
+            <div class="story-text-publisher">
+              <amp-img height=12 layout=fixed-height src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/The_Logo_of_The_Washington_Post_Newspaper.svg/2000px-The_Logo_of_The_Washington_Post_Newspaper.svg.png"></amp-img>
+            </div>
+            <div class="story-text-title">Why Millions Fear the Looming Trump Presidency
+              <div class="story-text-desciption">President-elect Trump has made promises that represent a threat to real lives and livelihoods. Some are unconstitutional.</div>
+            </div>
+            <div class="story-text-footer">
+              6h ago
+            </div>
+          </div>
+          <div class="story-image">
+            <amp-img width=1 height=1 layout=responsive src="https://img.washingtonpost.com/wp-apps/imrs.php?src=https://img.washingtonpost.com/rf/image_960w/2010-2019/Wires/Images/2016-11-10/Getty/AFP_HY91T.jpg&w=1484"></amp-img>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-item">
+        <div class="story">
+          <div class="story-text">
+            <div class="story-text-publisher">
+              <amp-img height=12 layout=fixed-height src="http://logos-download.com/wp-content/uploads/2016/05/Independent_logo_logotype.png"></amp-img>
+            </div>
+            <div class="story-text-title">Oprah Whinfrey sparks backlash for hopeful comments about Donald trump's presidency
+              <div class="story-text-desciption">Winfrey also said that she didn't think Trump being elected was a repudiation of Obama, but the voice of the
+                frustration of millions of voters.</div>
+            </div>
+            <div class="story-text-footer">
+              22h ago
+            </div>
+          </div>
+          <div class="story-image">
+            <amp-img width=1 height=1 layout=responsive src="https://static.independent.co.uk/s3fs-public/styles/article_large/public/thumbnails/image/2015/03/12/01/464051924.jpg"></amp-img>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-item">
+        <div class="story">
+          <div class="story-text">
+            <div class="story-text-publisher">
+              <amp-img height=12 layout=fixed-height src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/The_Guardian.svg/2000px-The_Guardian.svg.png"></amp-img>
+            </div>
+            <div class="story-text-title">Tom Hanks and Michael Jordan among Obama's last Medal of Freedom picks
+              <div class="story-text-desciption">Barack Obama's last Medal of Freedom recipients to include Bruce Springsteen, Tom Hanks, Robert De Niro and
+                Michael Jordan.</div>
+            </div>
+            <div class="story-text-footer">
+              1d ago
+            </div>
+          </div>
+          <div class="story-image">
+            <amp-img width=1 height=1 layout=responsive src="https://i.guim.co.uk/img/media/3e15e0280a91fd5745711a31b15098646a51e49b/0_101_3465_2079/master/3465.jpg?w=620&q=55&auto=format&usm=12&fit=max&s=bc911de4c58ea08046ed3cfcb2d0774f"></amp-img>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-item">
+        <div class="story">
+          <div class="story-text">
+            <div class="story-text-publisher">
+              <amp-img height=12 layout=fixed-height src="https://cdn0.vox-cdn.com/thumbor/z6qvhRTHsj_WSX5PcwGgSYu2dH8=/34x0:266x129/1080x600/cdn0.vox-cdn.com/uploads/chorus_image/image/47036552/vox-highlight.0.0.png"></amp-img>
+            </div>
+            <div class="story-text-title">Senate Republicans are showing some signs of resistance to Trump's foreign policy
+              <div class="story-text-desciption">Barack Obama found in 2009 that winning a presidential election is one thing but getting the United States
+                Senate to do what you want is a rather different thing.</div>
+            </div>
+            <div class="story-text-footer">
+              2d ago
+            </div>
+          </div>
+          <div class="story-image">
+            <amp-img width=1 height=1 layout=responsive src="https://images.outbrain.com/Imaginarium/api/uuid/2330e23fdb289f02dd7e24ab40e20f662b3737208f6961ea2912dba378986b10/250/250"></amp-img>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-item">
+        <div class="story">
+          <div class="story-text">
+            <div class="story-text-publisher">
+              <amp-img height=12 layout=fixed-height src="http://logos-download.com/wp-content/uploads/2016/05/USA_Today_logo_horizontal.png"></amp-img>
+            </div>
+            <div class="story-text-title">Twitter's alt-right purge could backfire
+              <div class="story-text-desciption">Twitter's move to ban alt-right accounts on the heels of a bitterly divisive election has drawn the company
+                into a heated debate over who gets to speak freely on its platform.</div>
+            </div>
+            <div class="story-text-footer">
+              2d ago
+            </div>
+          </div>
+          <div class="story-image">
+            <amp-img width=1 height=1 layout=responsive src="http://www.gannett-cdn.com/-mm-/de6e295a51c927e9360d018ed832a163b83e6a2e/c=0-57-683-968&r=183&c=0-0-180-240/local/-/media/2016/10/24/USATODAY/USATODAY/636129387602891388-Twitter.JPG"></amp-img>
+          </div>
+        </div>
+      </div>
+    </div>
 </body>
 
 </html>
