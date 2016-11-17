@@ -90,7 +90,7 @@ class AmpYoutube extends AMP.BaseElement {
     // because the player is pretty heavy.
     // This will still start loading before they become visible, but it
     // won't typically load a large number of embeds.
-    return 0.75;
+    return 3;
   }
 
    /** @override */
