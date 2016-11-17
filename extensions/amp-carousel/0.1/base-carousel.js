@@ -150,6 +150,10 @@ export class BaseCarousel extends AMP.BaseElement {
     if (this.showControls_ || !this.isInViewport()) {
       return;
     }
+    if (this.element.hasAttribute('animate')) {
+      const className = '-amp-carousel-animate-in';
+      this.element.classList.add(className);
+    }
     this.getVsync().mutate(() => {
       const className = '-amp-carousel-button-start-hint';
       this.element.classList.add(className);

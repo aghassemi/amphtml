@@ -72,6 +72,15 @@ amp-carousel[controls] .amp-carousel-button,
   animation: -amp-carousel-hint 1s ease-in 3s 1 normal both;
 }
 
+amp-carousel[animate].-amp-carousel-animate-in .-amp-scrollable-carousel-container {
+  transform: translateX(0);
+  transition: transform 0.5s ease-in;
+}
+
+amp-carousel[animate] .-amp-scrollable-carousel-container {
+  transform: translateX(100%);
+}
+
 @keyframes -amp-carousel-hint {
   0% {
     opacity: 1;
