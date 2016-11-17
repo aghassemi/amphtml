@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>VOX - Sherlock season 4 will air in the US sooner than you thought</title>
+  <title>CNN - Marc Forgione and his 'dysfunctional family' of super foodies</title>
   <link rel="canonical" href="amps.html">
   <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
   <style amp-boilerplate>
@@ -72,10 +72,12 @@
   <script async src="../../../dist/amp.js"></script>
   <script async custom-element="amp-carousel" src="../../../dist/v0/amp-carousel-0.1.max.js"></script>
   <script async custom-element="amp-image-lightbox" src="../../../dist/v0/amp-image-lightbox-0.1.max.js"></script>
+  <script async custom-element="amp-instagram" src="../../../dist/v0/amp-instagram-0.1.max.js"></script>
   <style amp-custom>
     h1,
     h2,
     hr,
+    figure,
     p {
       margin: 0;
       font-weight: inherit;
@@ -175,8 +177,8 @@
     }
 
     article p {
-      margin-bottom: 1.75em;
-      margin-top: 1.75em;
+      margin-bottom: 25px;
+      margin-top: 25px;
       line-height: 1.5em;
       font-size: 1.1em;
     }
@@ -275,14 +277,17 @@
       margin: 10px -9vw;
     }
 
-    .footer amp-carousel .-amp-scrollable-carousel-container {
+    amp-carousel .-amp-scrollable-carousel-container {
       padding-bottom: 20px;
       margin-bottom: -20px;
-      text-align: center;
     }
 
-    .footer amp-carousel .amp-carousel-button {
+    amp-carousel .amp-carousel-button {
       display: none;
+    }
+
+    .footer amp-carousel .-amp-scrollable-carousel-container {
+      text-align: center;
     }
 
     .tag {
@@ -302,9 +307,12 @@
       article {
         font-size: 1.3em;
       }
+      .title {
+        font-size: 2.4em;
+      }
       .padded-w {
-        padding-left: 15vw;
-        padding-right: 15vw;
+        padding-left: 18vw;
+        padding-right: 18vw;
       }
     }
 
@@ -315,6 +323,8 @@
         width: 48%;
         padding: 10px;
       }
+
+
     }
 
     @media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: landscape) {
@@ -386,6 +396,33 @@
     .slides amp-img img {
       object-position: right;
     }
+
+    amp-image-lightbox {
+      background: black;
+    }
+
+    amp-carousel figcaption {
+      display: none;
+    }
+
+    .amp-image-lightbox-caption {
+      font-size: 0.9em;
+      background-color: #111;
+    }
+
+    .instagram-parent {
+      padding: 1px;
+      border-radius: 3px;
+      box-shadow: 0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15);
+    }
+
+    .cnn-footer {
+      color: #bbb;
+      background-color: #f3f3f3;
+      font-size: 0.8em;
+      line-height: 1.6em;
+      text-align: center;
+    }
   </style>
 </head>
 
@@ -411,7 +448,8 @@
       <p>The New York Times has describe his food as "three times better than it needs to be" but although he's not afraid to
         experiment with unconventional dishes like roasted suckling pig face, he says food shouldn't be overcomplicated.
         "It's not something that you have to spend hours contemplating your soul before you put it in your mouth," he told
-        CNN.</p>
+        CNN.
+      </p>
       <p>"Food is something that soothes your soul, it makes people happy."</p>
     </article>
 
@@ -434,19 +472,94 @@
   </div>
 
   <amp-carousel animate class=slides layout=fixed-height height=56vw>
-    <amp-img layout=fixed width=37.2vw height=56vw src=http://blogs-images.forbes.com/maridelreyes/files/2015/06/Forgione_credit-Evan-Sung-1290x1940.jpg?width=960></amp-img>
-    <amp-img layout=fixed width=99.5vw height=56vw src=http://i2.cdn.cnn.com/cnnnext/dam/assets/161107140949-forge-exterior-2-exlarge-169.jpg></amp-img>
-    <amp-img layout=fixed width=99.5vw height=56vw src=http://i2.cdn.cnn.com/cnnnext/dam/assets/161107153050-pig-head-exlarge-169.jpg></amp-img>
+    <figure>
+      <amp-img on="tap:ilb" layout=fixed width=37.2vw height=56vw src=http://blogs-images.forbes.com/maridelreyes/files/2015/06/Forgione_credit-Evan-Sung-1290x1940.jpg?width=960></amp-img>
+      <figcaption>"Food is something that soothes your soul," says chef Marc Forgione. <i>Photo courtesy Evan Sung. (Evan Sung)</i></figcaption>
+    </figure>
+
+    <figure>
+      <amp-img on="tap:ilb" layout=fixed width=99.5vw height=56vw src=http://i2.cdn.cnn.com/cnnnext/dam/assets/161107140949-forge-exterior-2-exlarge-169.jpg></amp-img>
+      <figcaption>Forgione opened his award-winning restaurant, "Restaurant Marc Forgione" (formerly known as Forge) in 2008, with Christopher
+        Blumlo.</figcaption>
+    </figure>
+
+    <figure>
+      <amp-img on="tap:ilb" layout=fixed width=99.5vw height=56vw src=http://i2.cdn.cnn.com/cnnnext/dam/assets/161107141025-forge-interior-10-exlarge-169.jpg></amp-img>
+      <figcaption>Inside his eponymous restaurant, in Tribeca, New York.</figcaption>
+    </figure>
+
+    <figure>
+      <amp-img on="tap:ilb" layout=fixed width=99.5vw height=56vw src=http://i2.cdn.cnn.com/cnnnext/dam/assets/161107143234-smores-en-fuego-exlarge-169.jpg></amp-img>
+      <figcaption>The restaurant was awarded its first Michelin star in 2010. Pictured, its "smores en fuego,"</figcaption>
+    </figure>
+
+    <figure>
+      <amp-img on="tap:ilb" layout=fixed width=99.5vw height=56vw src=http://i2.cdn.cnn.com/cnnnext/dam/assets/161107141543-gettyimages-168040907-exlarge-169.jpg></amp-img>
+      <figcaption>In 2010, Forgione won Season 3 of "The Next Iron Chef." Pictured here he teaches "Reinventing Classic Comfort Food" at the New York Culinary Experience in May 2013. </figcaption>
+    </figure>
+
+    <figure>
+      <amp-img on="tap:ilb" layout=fixed width=40.7vw height=56vw src=https://s.yimg.com/uu/api/res/1.2/ys8nLMjrIuSc.0Jmv0Kzag--/aD02ODg7dz01MDA7c209MTthcHBpZD15dGFjaHlvbg--/http://magazines.zenfs.com/resizer/FIT_TO_WIDTH-w500/a44ee8f2108a929a14651527a551bbf7c3ab2b0f></amp-img>
+      <figcaption>Pictured, Forgione's suckling pig face.</figcaption>
+    </figure>
+
+    <figure>
+      <amp-img on="tap:ilb" layout=fixed width=99.5vw height=56vw src=http://i2.cdn.cnn.com/cnnnext/dam/assets/161107142127-chili-lobster-exlarge-169.jpg></amp-img>
+      <figcaption>A review by The New York Times rated Forgione's food as "three times better than it needs to be." Pictured, his chili lobster. </figcaption>
+    </figure>
+
+    <figure>
+      <amp-img on="tap:ilb" layout=fixed width=99.5vw height=56vw src=http://i2.cdn.cnn.com/cnnnext/dam/assets/161107141748-chicken-under-a-brick-exlarge-169.jpg></amp-img>
+      <figcaption>At the age of 16 Marc began working alongside his father, chef Larry Forgione, at the "An American Place" restaurant in New York City. Pictured, Marc's signature chicken under a brick. </figcaption>
+    </figure>
+
+    <figure>
+      <amp-img on="tap:ilb" layout=fixed width=99.5vw height=56vw src=http://i2.cdn.cnn.com/cnnnext/dam/assets/161107141626-gettyimages-532763544-exlarge-169.jpg></amp-img>
+      <figcaption>The acclaimed chef also spends time cooking for a good cause. Pictured here he prepares a meal for celebrity chef  Andrew Zimmern's "Dinner For A Better New York" benefiting "Services For The UnderServed," which offers housing and skills building for disadvantaged people.</figcaption>
+    </figure>
   </amp-carousel>
-    <div id=cap2 class=caption>
-    <div class="caption-text">Iron Chef Marc Forgione's secrets to culinary success</div>
+
+  <div id=cap2 class=caption>
+    <div class="caption-text"><b>Photos </b>Iron Chef Marc Forgione's secrets to culinary success</div>
   </div>
 
+  <div class="padded-w padded-h">
+    <article>
+      <p>"Any person that has been lucky enough in this world to taste just a little bit of success understands that you can't do it alone," he said.</p>
+      <p class="separator"></p>
+      <p class="hero-text">Meet the 'gigantic dysfunctional family'</p>
+      <p>His staff -- whom he chooses not just for their experience, but most importantly their passion -- are part of the foundation to his restaurant's success.</p>
+      <p>"We all work together, with each other," he said.</p>
+      <p>"I will cut them off whenever they say [they] 'work for' [me]. We work with each other and that's from the guy that takes out the garbage in the morning to the guy that writes the menus at night."</p>
+      <p>He affectionately describes the whole crew as "one gigantic dysfunctional family" and says that mutual respect is essential. "If you start thinking you're cooler than the guy next to you, try to do it without him, see what happens," he said.</p>
+      <p>
+        <div class="instagram-parent">
+          <amp-instagram data-shortcode="BG7M6yhLtdj" width=1 height=1 layout=responsive></amp-instagram>
+        </div>
+      </p>
+
+      <p class="separator"></p>
+      <p class="hero-text">'Iron Chef'</p>
+      <p>In 2010 Forge won television cooking contest "Iron Chef America," and since opening his eponymous restaurant, he's also established other eateries across the US. He's opened the steakhouse "American Cut" and "Lobster Press" for casual bites, as well as being a partner for "Khe-Yo," which is inspired by southeast Asian cuisine.</p>
+      <p>Those commitments mean he can't be at his flagship restaurant every day. So he relies heavily on sous chef Andy Knudson and sommelier Matthew Conway to keep it running smoothly.</p>
+      <p>"To have people like Andy and Matthew be able to hold down the fort while I'm gone is near and dear to my heart and it's the reason I'm able to sleep well at night," he said.</p>
+      <p>Knudson admitted Conway, Forgione and himself are "all very different people, (from) all different walks of life" but when they come together it works.</p>
+      <p>He says while there are times where "you want to kill each other, you don't sleep, you get upset," it's all worth it.</p>
+      <p>"He (Forgione) has a lot of trust in me to be here when he's not here and know (that) things are rolling the way they should be," Knudson said.</p>
+      <p>"I love what we do. I couldn't imagine doing anything else."</p>
+    </article>
+  </div>
+
+  <div class=cnn-footer>
+    <div class="padded-w padded-h">
+        <em>@2016 Cable News Network, Inc. A Time Warner Company. All Rights Reserved.</em>
+    </div>
+  </div>
   <div class="band"></div>
   <div id="moreFrom" class="footer">
     <div class="more">MORE FROM</div>
     <div class=publisher-logo>
-      <amp-img height=20 layout=fixed-height src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Vox_logo.svg/200px-Vox_logo.svg.png">
+      <amp-img height=20 layout=fixed-height src="https://www.godaddy.com/garage/wp-content/uploads/2015/07/CNN-logo.png">
     </div>
 
     <div class="grid">
@@ -454,7 +567,7 @@
         <div class="story">
           <div class="story-text">
             <div class="story-text-publisher">
-              <amp-img height=12 layout=fixed-height src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Vox_logo.svg/200px-Vox_logo.svg.png">
+              <amp-img height=12 layout=fixed-height src="https://www.godaddy.com/garage/wp-content/uploads/2015/07/CNN-logo.png">
             </div>
             <div class="story-text-title">Watch Drake and Dave Chappelle Lose it Over a David Blane Trick
               <div class="story-text-desciption">Tonight, David Blaine premiered his new television special, David Blaine: Beyond Magic.</div>
@@ -473,7 +586,7 @@
         <div class="story">
           <div class="story-text">
             <div class="story-text-publisher">
-              <amp-img height=12 layout=fixed-height src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Vox_logo.svg/200px-Vox_logo.svg.png"></amp-img>
+              <amp-img height=12 layout=fixed-height src="https://www.godaddy.com/garage/wp-content/uploads/2015/07/CNN-logo.png"></amp-img>
             </div>
             <div class="story-text-title">Donald Trump's Transition Is Reportedly in Chaos, But He Says It's going `So Smoothly`
               <div class="story-text-desciption">President-elect Donald Trump rejected claims of chaos and infighting straining his transition, declaring that
@@ -493,7 +606,7 @@
         <div class="story">
           <div class="story-text">
             <div class="story-text-publisher">
-              <amp-img height=12 layout=fixed-height src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Vox_logo.svg/200px-Vox_logo.svg.png"></amp-img>
+              <amp-img height=12 layout=fixed-height src="https://www.godaddy.com/garage/wp-content/uploads/2015/07/CNN-logo.png"></amp-img>
             </div>
             <div class="story-text-title">Here's Proof That the New Beatuty and the Beast Trailer Pretty Much the Same as the 1991 Trailer
               <div class="story-text-desciption">The lush new live-action Beauty and the Beast movie trailer, starring a wide-eyed Emma Watson.</div>
@@ -513,7 +626,7 @@
         <div class="story">
           <div class="story-text">
             <div class="story-text-publisher">
-              <amp-img height=12 layout=fixed-height src="img/time_logo.svg"></amp-img>
+              <amp-img height=12 layout=fixed-height src="https://www.godaddy.com/garage/wp-content/uploads/2015/07/CNN-logo.png"></amp-img>
             </div>
             <div class="story-text-title">LAPD Cheif Says Department Will Not Help With Deportations Under Donald Rrump Administration
               <div class="story-text-desciption">Los Angeles Police Chief Charlie Beck said Monday that he has no plans to change the LAPD’s stance on immigration
