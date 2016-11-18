@@ -20,6 +20,7 @@ import {vsyncFor} from './vsync';
 
 export function installParallax(global) {
   const parallaxElements = global.document.querySelectorAll('*[parallax]');
+  const scaleElements = global.document.querySelectorAll('*[hero-scale]');
   const fadeElements = global.document.querySelectorAll('*[fade]');
   for (let i = 0; i < fadeElements.length; i++) {
     st.setStyles(fadeElements[i], {
@@ -27,25 +28,36 @@ export function installParallax(global) {
     });
   }
 
+  for (let i = 0; i < scaleElements.length; i++) {
+    const rec = scaleElements[i].getBoundingClientRect();
+    scaleElements[i].originalH = rec.height;
+  }
+
   const viewport = viewportForDoc(global.document);
   const vsync = vsyncFor(global);
 
   viewport.onScroll(schedule);
-
+  let prevScrollTop = 0;
   function parallaxMutate() {
+
+    const newScrollTop = viewport.getScrollTop();
+    const delta = prevScrollTop - newScrollTop;
+    prevScrollTop = newScrollTop;
     for (let i = 0; i < parallaxElements.length; i++) {
       const element = parallaxElements[i];
       const rec = element.getBoundingClientRect();
       if (!isInView(rec, viewport)) {
         continue;
       };
-
       let factor = element.getAttribute('parallax');
-      factor = factor ? parseFloat(factor) : 0.5;
-      const top = viewport.getScrollTop();
-      const newY = (top * factor).toFixed(2);
+      factor = (factor ? parseFloat(factor) : 0.5) - 1;
+      const offset = (delta * factor);
+      if (!element.parallaxOffset) {
+        element.parallaxOffset = 0;
+      }
+      element.parallaxOffset = element.parallaxOffset + offset;
       st.setStyles(element, {
-        transform: 'translate3d(0,' + newY + 'px,0)',
+        transform: 'translate3d(0,' + element.parallaxOffset.toFixed(2) + 'px,0)',
       });
     }
   }
@@ -73,10 +85,26 @@ export function installParallax(global) {
     }
   }
 
+  function scaleMutate() {
+    for (let i = 0; i < scaleElements.length; i++) {
+      const element = scaleElements[i];
+      const rec = element.getBoundingClientRect();
+      if (!isInView(rec, viewport)) {
+        continue;
+      };
+
+      const newH = element.originalH - viewport.getScrollTop();
+      st.setStyles(element, {
+        'height': newH + 'px',
+      });
+    }
+  }
+
   function schedule() {
     vsync.mutate(function() {
       parallaxMutate();
       fadeInMutate();
+      scaleMutate();
     });
   }
 
