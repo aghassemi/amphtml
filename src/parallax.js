@@ -42,13 +42,15 @@ export function installParallax(global) {
 
     const newScrollTop = viewport.getScrollTop();
     const delta = prevScrollTop - newScrollTop;
-    prevScrollTop = newScrollTop;
+
     for (let i = 0; i < parallaxElements.length; i++) {
       const element = parallaxElements[i];
       const rec = element.getBoundingClientRect();
       if (!isInView(rec, viewport)) {
         continue;
       };
+
+      prevScrollTop = newScrollTop;
       let factor = element.getAttribute('amp-fx-parallax');
       factor = (factor ? parseFloat(factor) : 0.5) - 1;
       const offset = (delta * factor);
