@@ -19,9 +19,9 @@ import {viewportForDoc} from './viewport';
 import {vsyncFor} from './vsync';
 
 export function installParallax(global) {
-  const parallaxElements = global.document.querySelectorAll('*[parallax]');
-  const scaleElements = global.document.querySelectorAll('*[hero-scale]');
-  const fadeElements = global.document.querySelectorAll('*[fade]');
+  const parallaxElements = global.document.querySelectorAll('*[amp-fx-parallax]');
+  const scaleElements = global.document.querySelectorAll('*[amp-fx-hero-scale]');
+  const fadeElements = global.document.querySelectorAll('*[amp-fx-fade]');
   for (let i = 0; i < fadeElements.length; i++) {
     st.setStyles(fadeElements[i], {
       'opacity': 0,
@@ -49,7 +49,7 @@ export function installParallax(global) {
       if (!isInView(rec, viewport)) {
         continue;
       };
-      let factor = element.getAttribute('parallax');
+      let factor = element.getAttribute('amp-fx-parallax');
       factor = (factor ? parseFloat(factor) : 0.5) - 1;
       const offset = (delta * factor);
       if (!element.parallaxOffset) {
