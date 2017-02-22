@@ -65,19 +65,13 @@ export class VideoManager {
 
     this.registerCommonActions_(video);
 
-    // TODO(aghassemi): Remove this later. For now, VideoManager only matters
-    // for autoplay videos so no point in registering arbitrary videos yet.
-    if (!video.element.hasAttribute(VideoAttributes.AUTOPLAY)) {
-      return;
-    }
-
     if (!video.supportsPlatform()) {
       return;
     }
 
     this.entries_ = this.entries_ || [];
     const entry = new VideoEntry(this.ampdoc_, video);
-    this.maybeInstallVisibilityObserver_(entry);
+    this.maybeInstallScrollListener_(entry);
     this.entries_.push(entry);
   }
 
@@ -107,14 +101,19 @@ export class VideoManager {
    * @param {VideoEntry} entry
    * @private
    */
-  maybeInstallVisibilityObserver_(entry) {
+  maybeInstallScrollListener_(entry) {
     listen(entry.video.element, VideoEvents.VISIBILITY, () => {
       entry.updateVisibility();
     });
 
     // TODO(aghassemi, #4780): Create a new IntersectionObserver service.
     if (!this.scrollListenerInstalled_) {
+
+      // TODO(aghassemi): Create generic scrollsync service.
+      const scrollSyncService = new ScrollSync(this.ampdoc_);
+      scrollSyncService.addEffect(new VideoDockEffect(entry.video));
       const scrollListener = () => {
+
         for (let i = 0; i < this.entries_.length; i++) {
           this.entries_[i].updateVisibility();
         }
@@ -124,6 +123,42 @@ export class VideoManager {
       viewport.onChanged(scrollListener);
       this.scrollListenerInstalled_ = true;
     }
+  }
+}
+
+class ScrollSync {
+  constructor(ampdoc) {
+    this.effects_ = [];
+    this.viewport_ = viewportForDoc(ampdoc);
+    this.viewport_.onScroll(this.scrollListener_.bind(this));
+  }
+
+  scrollListener_() {
+    for (let i = 0; i < this.effects_.length; i++) {
+      this.effects_[i].measure();
+      this.effects_[i].transition();
+    }
+  }
+
+  addEffect(effect) {
+    this.effects_.push(effect);
+  }
+}
+
+class VideoDockEffect {
+
+  constructor(video) {
+    this.video_ = video;
+    this.element_ = video.element;
+    this.rect_ = null;
+  }
+
+  measure() {
+    this.rect_ = this.video_.element.getLayoutBox();
+  }
+
+  transition(delta, scrollTop) {
+    console.log(this.element_, this.rect_.top);
   }
 }
 
@@ -143,6 +178,9 @@ class VideoEntry {
     /** @package @const {!../video-interface.VideoInterface} */
     this.video = video;
 
+    /** {VideoState} */
+    this.state = new VideoState();
+
     /** @private {?Element} */
     this.autoplayAnimation_ = null;
 
@@ -150,7 +188,10 @@ class VideoEntry {
     this.loaded_ = false;
 
     /** @private {boolean} */
-    this.isVisible_ = false;
+    this.isMuted_ = false;
+
+    /** @private {boolean} */
+    this.isAutoPlaying_ = false;
 
     /** @private {boolean} */
     this.userInteracted_ = false;
@@ -167,11 +208,35 @@ class VideoEntry {
     /** @private {boolean} */
     this.hasAutoplay_ = element.hasAttribute(VideoAttributes.AUTOPLAY);
 
+    // Currently we only register after video player is build.
+    this.videoBuilt_();
+  }
+
+  installStateObserver_() {
+    const element = dev().assert(this.video.element);
+    const state = dev().assert(this.video.state)
+
     listenOncePromise(element, VideoEvents.LOAD)
       .then(() => this.videoLoaded_());
 
-    // Currently we only register after video player is build.
-    this.videoBuilt_();
+    listenOncePromise(element, VideoEvents.PAUSE).then(() => {
+      state.playing = false;
+    });
+
+    listenOncePromise(element, VideoEvents.PLAY).then(() => {
+      state.playing = true;
+    });
+
+    listenOncePromise(element, VideoEvents.MUTED).then(() => {
+      state.muted = true;
+    });
+
+    listenOncePromise(element, VideoEvents.UNMUTED).then(() => {
+      state.muted = false;
+    });
+
+    listenOncePromise(element, VideoEvents.LOAD)
+      .then(() => this.videoLoaded_());
   }
 
   /**
@@ -404,6 +469,19 @@ class VideoEntry {
       measure,
       mutate,
     });
+  }
+}
+
+/**
+ * VideoState represents the current state of the video
+ */
+class VideoState {
+  constructor() {
+    /** {boolean} */
+    this.playing = false;
+
+    /** {boolean} */
+    this.muted = false;
   }
 }
 
