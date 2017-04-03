@@ -1,0 +1,162 @@
+<!doctype html>
+<html ⚡>
+
+<head>
+  <meta charset="utf-8">
+  <title>AMP #0</title>
+  <link rel="canonical" href="amps.html">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+  <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+  <script async custom-element="amp-fit-text" src="../../dist/v0/amp-fit-text-0.1.max.js"></script>
+  <script async custom-element="amp-accordion" src="../../dist/v0/amp-accordion-0.1.max.js"></script>
+  <style amp-custom>
+    body {
+      font-family: 'Roboto', Arial;
+    }
+
+    .card {
+      width: 49vw;
+      height: 49vw;
+      display: inline-block;
+      position: relative;
+    }
+
+    .card amp-img img {
+      object-fit: contain;
+    }
+
+    .filter-container {
+      padding: 5px;
+    }
+
+    .filter-container amp-accordion .i-amphtml-accordion-header {
+      background: none;
+      border: none;
+      font-size: 1.1em;
+      background-color: #efefef;
+      padding: 5px;
+    }
+
+    .filter-container amp-accordion section {
+      padding: 5px 5px;
+      padding-bottom: 0px;
+      padding-right: 0px;
+    }
+
+    .filter-container amp-accordion ul {
+      margin: 0px;
+      padding: 5px 5px;
+    }
+
+    .filter-container amp-accordion ul li {
+      list-style: none;
+      margin: 0px;
+      padding: 5px;
+    }
+  </style>
+<style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style>
+<noscript>
+  <style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style>
+</noscript>
+<script async src="../../dist/amp.js"></script>
+</head>
+
+<body>
+
+  <div class="filter-container">
+    <amp-accordion>
+      <section expanded>
+        <h2>Sort:</h4>
+          <ul>
+            <li><button>PRICE: high to low</button></li>
+            <li><button>PRICE: low to high</button></li>
+            <li><button>DATE: newest first</button></li>
+          </ul>
+      </section>
+
+      <section expanded>
+        <h2>Filter:</h4>
+          <amp-accordion>
+            <section expanded>
+              <h3>By color:</h3>
+              <ul>
+                <li><label><input type="checkbox">RED</input><label></li>
+                <li><label><input type="checkbox">BLUE</input><label></li>
+                <li><label><input type="checkbox">GREEN</input><label></li>
+                <li><label><input type="checkbox">YELLOW</input><label></li>
+              </ul>
+            </section>
+
+            <section expanded>
+              <h3>Other filters:</h3>
+              <ul>
+                <li><label><input type="checkbox">New</input><label></li>
+                <li><label><input type="checkbox">On Sale</input><label></li>
+              </ul>
+            </section>
+        </amp-accordion>
+      </section>
+    </amp-accordion>
+    <button> Reset Filters</button>
+  </div>
+
+  <div class="items">
+    <div class="card">
+      <amp-img
+        layout="fill"
+        src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=d50000&txt=$20 - New!">
+      </amp-img>
+    </div>
+
+    <div class="card">
+      <amp-img
+        layout="fill"
+        src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=4CAF50&txt=$10 - On Sale">
+      </amp-img>
+    </div>
+
+    <div class="card">
+      <amp-img
+        layout="fill"
+        src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=03A9F4&txt=$30">
+      </amp-img>
+    </div>
+
+    <div class="card">
+      <amp-img
+        layout="fill"
+        src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=FFC107&txt=$40 - New - On Sale">
+      </amp-img>
+    </div>
+
+    <div class="card">
+      <amp-img
+        layout="fill"
+        src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=4CAF50&txt=$25">
+      </amp-img>
+    </div>
+
+    <div class="card">
+      <amp-img
+        layout="fill"
+        src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=d50000&txt=$20 - On Sale">
+      </amp-img>
+    </div>
+
+    <div class="card">
+      <amp-img
+        layout="fill"
+        src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=03A9F4&txt=$70 - New">
+      </amp-img>
+    </div>
+
+    <div class="card">
+      <amp-img
+        layout="fill"
+        src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=4CAF50&txt=$35 - New">
+      </amp-img>
+    </div>
+
+  </div>
+</body>
+</html>
