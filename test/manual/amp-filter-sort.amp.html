@@ -7,17 +7,22 @@
   <link rel="canonical" href="amps.html">
   <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
   <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
-  <script async custom-element="amp-fit-text" src="../../dist/v0/amp-fit-text-0.1.max.js"></script>
-  <script async custom-element="amp-accordion" src="../../dist/v0/amp-accordion-0.1.max.js"></script>
   <style amp-custom>
     body {
       font-family: 'Roboto', Arial;
     }
 
+    .items {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
     .card {
-      width: 49vw;
-      height: 49vw;
-      display: inline-block;
+      min-width: 47vw;
+      min-height: 47vw;
+      flex: 0;
+      margin: 1vw;
       position: relative;
     }
 
@@ -58,19 +63,63 @@
 <noscript>
   <style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style>
 </noscript>
+
+<script>
+  // WARNING: This script tag makes this page an INVALID AMP Page.
+  // This code is here for demo purposes and enables the required experiments
+  // automatically for this demo so that visitors do not need to enable them manually.
+  var experiments = ['amp-bind', 'amp-sort', 'amp-filter'];
+  var interval = setInterval(function () {
+    if (window.AMP && window.AMP.isExperimentOn) {
+      if (!allExperimentsEnabled()) {
+        enableAllExperiments();
+      }
+      clearInterval(interval);
+    }
+  }, 50);
+  var allExperimentsEnabled = function () {
+    var allEnabled = true;
+    for (var i = 0; i < experiments.length; i++) {
+      allEnabled = allEnabled && window.AMP.isExperimentOn(experiments[i]);
+    }
+    return allEnabled;
+  }
+  var enableAllExperiments = function () {
+    for (var i = 0; i < experiments.length; i++) {
+      window.AMP.toggleExperiment(experiments[i], true);
+    }
+    window.location.reload(true);
+  }
+</script>
+
+<script async custom-element="amp-bind" src="../../dist/v0/amp-bind-0.1.max.js"></script>
+<script async custom-element="amp-sort" src="../../dist/v0/amp-sort-0.1.max.js"></script>
 <script async src="../../dist/amp.js"></script>
 </head>
 
 <body>
+  <amp-state id="appState">
+    <script type="application/json">
+      {
+        "colorFilters": [],
+        "sortBy": null,
+        "sortDir": null,
+        "filterByIsNew": null,
+        "filterByOnSale": null
 
+      }
+    </script>
+  </amp-state>
+
+  <h1 [text]="colorFilters"></h1>
   <div class="filter-container">
     <amp-accordion>
       <section expanded>
         <h2>Sort:</h4>
           <ul>
-            <li><button>PRICE: high to low</button></li>
-            <li><button>PRICE: low to high</button></li>
-            <li><button>DATE: newest first</button></li>
+            <li><button on="tap:AMP.setState({sortBy: 'data-price'}), AMP.setState({sortDir: 'desc'})">PRICE: high to low</button></li>
+            <li><button on="tap:AMP.setState({sortBy: 'data-price'}), AMP.setState({sortDir: 'asc'})">PRICE: low to high</button></li>
+            <li><button on="tap:AMP.setState({sortBy: 'data-is-new'}), AMP.setState({sortDir: 'desc'})">DATE: newest first</button></li>
           </ul>
       </section>
 
@@ -80,18 +129,18 @@
             <section expanded>
               <h3>By color:</h3>
               <ul>
-                <li><label><input type="checkbox">RED</input><label></li>
-                <li><label><input type="checkbox">BLUE</input><label></li>
-                <li><label><input type="checkbox">GREEN</input><label></li>
-                <li><label><input type="checkbox">YELLOW</input><label></li>
+                <li><label><input type="checkbox" on="change:AMP.setState({colorFilters: colorFilters ? colorFilters.concat(['red']) : ['red']})">RED</input><label></li>
+                <li><label><input type="checkbox" on="change:AMP.setState({colorFilters: colorFilters ? colorFilters.concat(['blue']) : ['blue']})">BLUE</input><label></li>
+                <li><label><input type="checkbox" on="change:AMP.setState({colorFilters: colorFilters ? colorFilters.concat(['green']) : ['green']})">GREEN</input><label></li>
+                <li><label><input type="checkbox" on="change:AMP.setState({colorFilters: colorFilters ? colorFilters.concat(['yellow']) : ['yellow']})">YELLOW</input><label></li>
               </ul>
             </section>
 
             <section expanded>
               <h3>Other filters:</h3>
               <ul>
-                <li><label><input type="checkbox">New</input><label></li>
-                <li><label><input type="checkbox">On Sale</input><label></li>
+                <li><label><input type="checkbox" on="change:AMP.setState({filterByIsNew: event.checked})">New</input><label></li>
+                <li><label><input type="checkbox" on="change:AMP.setState({filterByOnSale: event.checked})">On Sale</input><label></li>
               </ul>
             </section>
         </amp-accordion>
@@ -100,62 +149,81 @@
     <button> Reset Filters</button>
   </div>
 
-  <div class="items">
-    <div class="card">
-      <amp-img
-        layout="fill"
-        src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=d50000&txt=$20 - New!">
-      </amp-img>
-    </div>
+<amp-sort [sort-by]="sortBy" [sort-direction]="sortDir" sort-type="number">
+  <amp-filter operator="and">
 
-    <div class="card">
-      <amp-img
-        layout="fill"
-        src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=4CAF50&txt=$10 - On Sale">
-      </amp-img>
-    </div>
+    <amp-filter-condition
+      attr="data-color"
+      condition="{appState.colorFilters.includes(value)}"
+      [toggled]="appState.colorFilters.length > 0">
+    </amp-filter-condition>
 
-    <div class="card">
-      <amp-img
-        layout="fill"
-        src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=03A9F4&txt=$30">
-      </amp-img>
-    </div>
+    <amp-filter-condition-group operator="or">
 
-    <div class="card">
-      <amp-img
-        layout="fill"
-        src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=FFC107&txt=$40 - New - On Sale">
-      </amp-img>
-    </div>
+      <amp-filter-condition attr="data-on-sale" [toggled]="filterByOnSale"></amp-filter-codition>
 
-    <div class="card">
-      <amp-img
-        layout="fill"
-        src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=4CAF50&txt=$25">
-      </amp-img>
-    </div>
+      <amp-filter-condition attr="data-is-new" condition="1" [toggled]="filterByIsNew"></amp-filter-codition>
 
-    <div class="card">
-      <amp-img
-        layout="fill"
-        src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=d50000&txt=$20 - On Sale">
-      </amp-img>
-    </div>
+    </amp-filter-condition-group>
 
-    <div class="card">
-      <amp-img
-        layout="fill"
-        src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=03A9F4&txt=$70 - New">
-      </amp-img>
-    </div>
+    <div class="items">
+      <div class="card" data-color="red" data-on-sale data-price="20" data-is-new="1">
+        <amp-img
+          layout="fill"
+          src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=d50000&txt=$20 - New!">
+        </amp-img>
+      </div>
 
-    <div class="card">
-      <amp-img
-        layout="fill"
-        src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=4CAF50&txt=$35 - New">
-      </amp-img>
-    </div>
+      <div class="card"  data-price="10" data-is-new="0">
+        <amp-img
+          layout="fill"
+          src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=4CAF50&txt=$10 - On Sale">
+        </amp-img>
+      </div>
+
+      <div class="card" data-price="30" data-is-new="0">
+        <amp-img
+          layout="fill"
+          src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=03A9F4&txt=$30">
+        </amp-img>
+      </div>
+
+      <div class="card" data-price="40" data-is-new="1">
+        <amp-img
+          layout="fill"
+          src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=FFC107&txt=$40 - New - On Sale">
+        </amp-img>
+      </div>
+
+      <div class="card" data-price="27" data-is-new="0">
+        <amp-img
+          layout="fill"
+          src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=4CAF50&txt=$27">
+        </amp-img>
+      </div>
+
+      <div class="card" data-price="25" data-is-new="0">
+        <amp-img
+          layout="fill"
+          src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=d50000&txt=$25 - On Sale">
+        </amp-img>
+      </div>
+
+      <div class="card" data-price="70" data-is-new="1">
+        <amp-img
+          layout="fill"
+          src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=d50000&txt=$70 - New">
+        </amp-img>
+      </div>
+
+      <div class="card" data-price="35" data-is-new="1">
+        <amp-img
+          layout="fill"
+          src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=4CAF50&txt=$35 - New">
+        </amp-img>
+      </div>
+    </amp-filter>
+  </amp-sort>
 
   </div>
 </body>

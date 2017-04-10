@@ -154,6 +154,10 @@ export class ActionService {
       });
     } else if (name == 'submit' || name == 'change') {
       this.root_.addEventListener(name, event => {
+        if (name == 'change') {
+          event.detail = {checked: event.target.checked};
+        }
+
         this.trigger(dev().assertElement(event.target), name, event);
       });
     }

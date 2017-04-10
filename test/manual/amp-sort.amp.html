@@ -1,0 +1,243 @@
+<!doctype html>
+<html ⚡>
+
+<head>
+  <meta charset="utf-8">
+  <title>AMP #0</title>
+  <link rel="canonical" href="amps.html">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+  <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+  <style amp-custom>
+    body {
+      font-family: 'Roboto', Arial;
+      margin: 0;
+      padding: 0;
+    }
+
+    ul.items {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    li.card {
+      display: block;
+      box-sizing: border-box;
+      min-width: 30vw;
+      min-height: 30vw;
+      flex: 0;
+      border: 1px solid  white;
+      position: relative;
+    }
+
+    li.card amp-img img {
+      object-fit: contain;
+    }
+
+    table {
+      table-layout:fixed;
+      width: 100%;
+    }
+
+    thead th {
+      background: #EEE;
+    }
+
+    td {
+      text-align: center;
+    }
+
+    .priceCol, .isNewCol {
+       cursor: pointer;
+     }
+
+     .priceCol::after, .isNewCol::after {
+       content: ' ⇅';
+       color: #AAA;
+     }
+
+    /*
+     * amp-sort automatically adds sorted-by sorted-drection attributes to the
+     * component after each sort operation so CSS can target them.
+     */
+    amp-sort[sorted-by='data-price'][sorted-direction='asc'] .priceCol::after,
+    amp-sort[sorted-by='data-is-new'][sorted-direction='asc'] .isNewCol::after {
+      content: ' ⇣';
+      color: deeppink;
+    }
+
+    amp-sort[sorted-by='data-is-new'][sorted-direction='desc'] .isNewCol::after,
+    amp-sort[sorted-by='data-price'][sorted-direction='desc'] .priceCol::after {
+      content: ' ⇡';
+      color: deeppink;
+    }
+
+  </style>
+<style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style>
+<noscript>
+  <style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style>
+</noscript>
+
+<script>
+  // WARNING: This script tag makes this page an INVALID AMP Page.
+  // This code is here for demo purposes and enables the required experiments
+  // automatically for this demo so that visitors do not need to enable them manually.
+  var experiments = ['amp-bind', 'amp-sort'];
+  var interval = setInterval(function () {
+    if (window.AMP && window.AMP.isExperimentOn) {
+      if (!allExperimentsEnabled()) {
+        enableAllExperiments();
+      }
+      clearInterval(interval);
+    }
+  }, 50);
+  var allExperimentsEnabled = function () {
+    var allEnabled = true;
+    for (var i = 0; i < experiments.length; i++) {
+      allEnabled = allEnabled && window.AMP.isExperimentOn(experiments[i]);
+    }
+    return allEnabled;
+  }
+  var enableAllExperiments = function () {
+    for (var i = 0; i < experiments.length; i++) {
+      window.AMP.toggleExperiment(experiments[i], true);
+    }
+    window.location.reload(true);
+  }
+</script>
+
+<script async custom-element="amp-bind" src="../../dist/v0/amp-bind-0.1.max.js"></script>
+<script async custom-element="amp-sort" src="../../dist/v0/amp-sort-0.1.max.js"></script>
+<script async src="../../dist/amp.js"></script>
+</head>
+
+<body>
+
+  <h1>amp-sort prototypes</h1>
+
+  <h2>1- List without amp-bind</h2>
+  <button on="tap:sorter.sort(sortBy='data-price', sortDirecion='desc')">PRICE: high to low</button>
+  <button on="tap:sorter.sort(sortBy='data-price', sortDirecion='asc')">PRICE: low to high</button>
+  <button on="tap:sorter.sort(sortBy='data-is-new', sortDirecion='desc')">DATE: newest first</button>
+
+  <amp-sort id="sorter" value-type="number">
+    <ul class="items">
+      <li class="card" data-price="20" data-is-new="1">
+        <amp-img layout="fill" src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=70&bg=d50000&txt=$20 - New!">
+        </amp-img>
+      </li>
+
+      <li class="card" data-price="10" data-is-new="0">
+        <amp-img layout="fill" src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=70&bg=4CAF50&txt=$10">
+        </amp-img>
+      </li>
+
+      <li class="card" data-price="30" data-is-new="0">
+        <amp-img layout="fill" src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=70&bg=03A9F4&txt=$30">
+        </amp-img>
+      </li>
+
+      <li class="card" data-price="40" data-is-new="1">
+        <amp-img layout="fill" src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=70&bg=FFC107&txt=$40 - New!">
+        </amp-img>
+      </li>
+
+      <li class="card" data-price="27" data-is-new="0">
+        <amp-img layout="fill" src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=70&bg=4CAF50&txt=$27">
+        </amp-img>
+      </li>
+
+      <li class="card" data-price="25" data-is-new="0">
+        <amp-img layout="fill" src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=70&bg=d50000&txt=$25">
+        </amp-img>
+      </li>
+    </ul>
+  </amp-sort>
+
+  <h2>2- List using amp-bind</h2>
+  <button on="tap:AMP.setState({sortBy: 'data-price'}), AMP.setState({sortDir: 'desc'})">PRICE: high to low</button>
+  <button on="tap:AMP.setState({sortBy: 'data-price'}), AMP.setState({sortDir: 'asc'})">PRICE: low to high</button>
+  <button on="tap:AMP.setState({sortBy: 'data-is-new'}), AMP.setState({sortDir: 'desc'})">DATE: newest first</button>
+
+  <amp-sort [sort-by]="sortBy" [sort-direction]="sortDir" value-type="number">
+    <ul class="items">
+      <li class="card" data-price="20" data-is-new="1">
+        <amp-img layout="fill" src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=70&bg=d50000&txt=$20 - New!">
+        </amp-img>
+      </li>
+
+      <li class="card" data-price="10" data-is-new="0">
+        <amp-img layout="fill" src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=70&bg=4CAF50&txt=$10">
+        </amp-img>
+      </li>
+
+      <li class="card" data-price="30" data-is-new="0">
+        <amp-img layout="fill" src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=70&bg=03A9F4&txt=$30">
+        </amp-img>
+      </li>
+
+      <li class="card" data-price="40" data-is-new="1">
+        <amp-img layout="fill" src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=70&bg=FFC107&txt=$40 - New!">
+        </amp-img>
+      </li>
+
+      <li class="card" data-price="27" data-is-new="0">
+        <amp-img layout="fill" src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=70&bg=4CAF50&txt=$27">
+        </amp-img>
+      </li>
+
+      <li class="card" data-price="25" data-is-new="0">
+        <amp-img layout="fill" src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=70&bg=d50000&txt=$25">
+        </amp-img>
+      </li>
+    </ul>
+  </amp-sort>
+
+  <h2>3- Table</h2>
+  <amp-sort id="tableSorter" value-type='number'>
+    <table summary="Table shwowing items, their price and whether they are new">
+      <thead>
+        <th>Item</th>
+        <th on="tap:tableSorter.sort(sortBy='data-price', sortDirecion='toggle')" class="priceCol">Price</th>
+        <th on="tap:tableSorter.sort(sortBy='data-is-new', sortDirecion='toggle')" class="isNewCol">Is New</th>
+      </thead>
+      <tbody>
+        <tr data-price="20" data-is-new="1">
+          <th scope="row">Red Jacket</th>
+          <td>$20</td>
+          <td>Yes</td>
+        </tr>
+        <tr data-price="10" data-is-new="0">
+          <th scope="row">Green Shoes</th>
+          <td>$10</td>
+          <td>No</td>
+        </tr>
+        <tr data-price="30" data-is-new="0">
+          <th scope="row">Blue T-Shirt</th>
+          <td>$30</td>
+          <td>No</td>
+        </tr>
+        <tr data-price="40" data-is-new="1">
+          <th scope="row">Yellow Tie</th>
+          <td>$40</td>
+          <td>Yes</td>
+        </tr>
+        <tr data-price="27" data-is-new="0">
+          <th scope="row">Green Pants</th>
+          <td>$27</td>
+          <td>No</td>
+        </tr>
+        <tr data-price="25" data-is-new="0">
+          <th scope="row">Red Tuque</th>
+          <td>$25</td>
+          <td>No</td>
+        </tr>
+      </tbody>
+    </table>
+  </amp-sort>
+</body>
+
+</html>

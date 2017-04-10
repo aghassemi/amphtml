@@ -219,6 +219,18 @@ function createElementRules_() {
     'AMP-IFRAME': {
       'src': null,
     },
+
+    'AMP-SORT': {
+      'sort-by': null,
+      'sort-direction': null,
+      'sort-type': null,
+    },
+    'AMP-FILTER-CONDITION': {
+      'toggled': null,
+    },
+    'AMP-FILTER-CONDITION': {
+      'toggled': null,
+    },
     'AMP-IMG': {
       'alt': null,
       'attribution': null,
