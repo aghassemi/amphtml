@@ -35,6 +35,15 @@ import {dashToCamelCase} from '../../../src/string';
 /** @const {string} */
 const TAG = 'amp-animation';
 
+/**
+ * @private
+ * @enum {string}
+ */
+const Tickers = {
+  SCROLL: 'scroll',
+  TIME: 'time',
+};
+
 
 /**
  * A struct for parameters for `Element.animate` call.
@@ -57,6 +66,33 @@ const SERVICE_PROPS = {
   'easing': true,
 };
 
+export class ScrollboundPlayer {
+  constructor(request) {
+    this.animation_ = request.target.animate(request.keyframes, request.timing);
+    this.animation_.pause();
+    this.paused_ = true;
+  }
+
+  pause() {
+    this.paused_ = true;
+  }
+
+  play() {
+    this.paused_ = false;
+  }
+
+  cancel() {
+    this.paused_ = true;
+    this.animation_.cancel();
+  }
+
+  tick_(delta) {
+    if (this.paused_) {
+      return;
+    }
+    this.player_.currentTime += delta;
+  }
+}
 
 /**
  */
@@ -103,7 +139,14 @@ export class WebAnimationRunner {
     dev().assert(!this.players_);
     this.setPlayState_(WebAnimationPlayState.RUNNING);
     this.players_ = this.requests_.map(request => {
-      return request.target.animate(request.keyframes, request.timing);
+      let player;
+      if (request.timing.ticker == Tickers.SCROLL) {
+        player = new ScrollboundPlayer(request);
+      } else {
+        player = request.target.animate(request.keyframes, request.timing);
+      }
+      player.ticker = request.timing.ticker;
+      return player;
     });
     this.runningCount_ = this.players_.length;
     this.players_.forEach(player => {
@@ -171,6 +214,14 @@ export class WebAnimationRunner {
     this.setPlayState_(WebAnimationPlayState.IDLE);
     this.players_.forEach(player => {
       player.cancel();
+    });
+  }
+
+  scrollTick(delta) {
+    this.players_.forEach(player => {
+      if (player.ticker == Tickers.SCROLL) {
+        player.tick_(delta);
+      }
     });
   }
 
@@ -285,6 +336,7 @@ export class MeasureScanner extends Scanner {
       easing: 'linear',
       direction: WebAnimationTimingDirection.NORMAL,
       fill: WebAnimationTimingFill.NONE,
+      ticker: 'time',
     };
 
     /** @private {!Array<!Element> } */
@@ -499,6 +551,8 @@ export class MeasureScanner extends Scanner {
         newTiming.direction : prevTiming.direction;
     const fill = newTiming.fill != null ?
         newTiming.fill : prevTiming.fill;
+    const ticker = newTiming.ticker != null ?
+        newTiming.ticker : prevTiming.ticker;
 
     // Validate.
     if (this.validate_) {
@@ -523,6 +577,7 @@ export class MeasureScanner extends Scanner {
       easing,
       direction,
       fill,
+      ticker,
     };
   }
 

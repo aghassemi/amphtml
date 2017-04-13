@@ -28,9 +28,39 @@ import {setStyles} from '../../../src/style';
 import {tryParseJson} from '../../../src/json';
 import {user} from '../../../src/log';
 import {viewerForDoc} from '../../../src/services';
+import {viewportForDoc} from '../../../src/services';
 
 const TAG = 'amp-animation';
 
+class ScrollSync() {
+  observe(element, opt_visibilityConditions){
+
+  }
+}
+
+class Scene {
+   constuctor(element, opt_visibilityConditions) {
+
+   }
+
+   onVisibilityChanged() {
+
+   }
+}
+
+class ScrollboundScene extends Scene {
+   constuctor(element, opt_is3p, opt_visibilityConditions) {
+     super(element, opt_is3p, opt_visibilityConditions);
+   }
+
+   onScrollDurationChanged() {
+
+   }
+
+   onPositionChanged() {
+
+   }
+}
 
 export class AmpAnimation extends AMP.BaseElement {
 
@@ -111,6 +141,10 @@ export class AmpAnimation extends AMP.BaseElement {
     const embed =
         frameElement ? getFriendlyIframeEmbedOptional(frameElement) : null;
     if (embed) {
+      const viewport = viewportForDoc(frameElement);
+      viewport.onScroll(a => {
+        console.log('b', a);
+      });
       this.embed_ = embed;
       this.setVisible_(embed.isVisible());
       embed.onVisibilityChanged(() => {

@@ -101,7 +101,6 @@ export const WebAnimationTimingDirection = {
   ALTERNATE_REVERSE: 'alternate-reverse',
 };
 
-
 /**
  * See https://developer.mozilla.org/en-US/docs/Web/API/AnimationEffectTimingProperties/fill
  * @enum {string}
@@ -113,7 +112,6 @@ export const WebAnimationTimingFill = {
   BOTH: 'both',
   AUTO: 'auto',
 };
-
 
 /** @const {!Object<string, boolean>} */
 const WHITELISTED_RPOPS = {

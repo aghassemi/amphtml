@@ -556,7 +556,7 @@ app.use('/a4a(|-3p)/', function(req, res) {
   var adUrl = req.url;
   var templatePath = '/build-system/server-a4a-template.html';
   var urlPrefix = getUrlPrefix(req);
-  if (force3p && !adUrl.startsWith('/m') &&
+  if (!adUrl.startsWith('/m') &&
       urlPrefix.indexOf('//localhost') != -1) {
     // This is a special case for testing. `localhost` URLs are transformed to
     // `ads.localhost` to ensure that the iframe is fully x-origin.
@@ -642,6 +642,17 @@ app.get(['/examples/*', '/test/manual/*'], function(req, res, next) {
     }
 
     file = replaceUrls(mode, file, '', inabox);
+
+    if (inabox && req.headers.origin && req.query.__amp_source_origin) {
+      // Allow CORS requests for A4A.
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.setHeader('Access-Control-Allow-Origin',
+          req.headers.origin);
+      res.setHeader('Access-Control-Expose-Headers',
+          'AMP-Access-Control-Allow-Source-Origin');
+      res.setHeader('AMP-Access-Control-Allow-Source-Origin',
+          req.query.__amp_source_origin);
+    }
 
     // Extract amp-ad for the given 'type' specified in URL query.
     if (req.path.indexOf('/examples/ads.amp') == 0 && req.query.type) {
