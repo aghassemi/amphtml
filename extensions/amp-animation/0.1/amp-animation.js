@@ -28,7 +28,7 @@ import {setStyles} from '../../../src/style';
 import {tryParseJson} from '../../../src/json';
 import {user, dev} from '../../../src/log';
 import {viewerForDoc} from '../../../src/services';
-import {viewportForDoc} from '../../../src/services';
+import {viewportForDoc, vsyncFor} from '../../../src/services';
 import {Observable} from '../../../src/observable';
 import {getMode} from '../../../src/mode';
 import {getIntersectionChangeEntry} from '../../../src/intersection-observer';
@@ -38,16 +38,19 @@ const TAG = 'amp-animation';
 class PositionObserver {
 
   constructor(ampdoc) {
+    this.ampdoc_ = ampdoc;
     this.inabox_ = getMode(this.ampdoc_.win).runtime == 'inabox';
     dev().assert(!this.inabox_, 'ScrollSync not supported for in-a-box yet');
 
     this.ampdoc_ = ampdoc;
 
-    this.entries = [];
+    this.entries_ = [];
     this.started_ = false;
 
     /** @const @private {!Vsync} */
     this.vsync_ = vsyncFor(ampdoc.win);
+
+    this.viewport_ = viewportForDoc(ampdoc);
 
   }
 
@@ -72,7 +75,7 @@ class PositionObserver {
       position: null,
     };
 
-    this.elements_.push(entry);
+    this.entries_.push(entry);
 
     this.start_();
 
@@ -88,7 +91,7 @@ class PositionObserver {
   }
 
   schedulePass_() {
-    this.vsync_.mesure(() => {
+    this.vsync_.measure(() => {
       this.pass_();
       // TODO(aghassemi): optimize this
       this.schedulePass_();
@@ -99,17 +102,21 @@ class PositionObserver {
     for (let i = 0; i < this.entries_.length; i++) {
       const entry = this.entries_[i];
       const elementBox = this.viewport_.getLayoutRect(entry.element);
-
-      const position = elementBox;
+      const boxEntry = getIntersectionChangeEntry(elementBox, null,
+          this.viewport_.getRect());
+      const position = boxEntry.boundingClientRect;
       if (!this.layoutRectEquals_(entry.position, position)) {
         entry.positionObservable.fire(position);
-        entry.position = elementBox;
+        entry.position = position;
       }
     }
   }
 
   //TODO(aghassemi): Move to layout-rect.js as helper method
   layoutRectEquals_(l1, l2) {
+    if (!l1 || !l2) {
+      return false;
+    }
     return l1.left == l2.left && l1.top == l2.top &&
         l1.width == l2.width && l1.height == l2.height;
   }
@@ -136,8 +143,8 @@ class ScrollboundScene {
       this.onPositionChanged_.bind(this)
     );
 
-    this.onScrollDurationChanged();
-    this.viewport_.onChanged(this.onScrollDurationChanged.bind(this));
+    this.onScrollDurationChanged_();
+    this.viewport_.onChanged(this.onScrollDurationChanged_.bind(this));
   }
 
   onPositionChanged_(newPos) {
@@ -255,6 +262,12 @@ export class AmpAnimation extends AMP.BaseElement {
         }
       });
     }
+
+    // HACK DONT SUBMIT. layoutCallback is not ever called for A4A case
+    // for some reason.
+    if (this.triggerOnVisibility_) {
+      this.activate();
+    }
   }
 
   setupScrollboundAnimatins_() {
@@ -280,7 +293,7 @@ export class AmpAnimation extends AMP.BaseElement {
     });
 
     this.scene_.positionObservable.add(newPos => {
-      this.runner_.scrollTick(newPos.bottom);
+      this.runner_.scrollTick(newPos);
     });
   }
 

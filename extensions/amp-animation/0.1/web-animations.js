@@ -70,7 +70,8 @@ export class ScrollboundPlayer {
   constructor(request) {
     this.animation_ = request.target.animate(request.keyframes, request.timing);
     this.animation_.pause();
-    this.paused_ = true;
+    this.paused_ = false;
+    this.request_ = request;
   }
 
   pause() {
@@ -90,11 +91,11 @@ export class ScrollboundPlayer {
     if (this.paused_) {
       return;
     }
-    this.player_.currentTime = pos;
+    this.animation_.currentTime = pos;
   }
 
   updateDuration(newDuration) {
-    this.player_.duration = newDuration;
+    this.animation_.duration = newDuration;
   }
 }
 
@@ -224,7 +225,7 @@ export class WebAnimationRunner {
   scrollTick(pos) {
     this.players_.forEach(player => {
       if (player.ticker == Tickers.SCROLL) {
-        player.tick_(pos);
+        player.tick(pos);
       }
     });
   }
@@ -235,11 +236,17 @@ export class WebAnimationRunner {
         player.updateDuration(newDuration);
       }
     });
+
+    this.requests_.forEach(request => {
+      if (request.timing.ticker == Tickers.SCROLL) {
+        request.timing.duration = newDuration;
+      }
+    });
   }
 
   hasScrollboundAnimations() {
-    for (let i = 0; i < this.players_.length; i++) {
-      if (this.players_[i].ticker == Tickers.SCROLL) {
+    for (let i = 0; i < this.requests_.length; i++) {
+      if (this.requests_[i].timing.ticker == Tickers.SCROLL) {
         return true;
       }
     }
