@@ -243,6 +243,7 @@ null || 'default' // 'default'
 | [`Array`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array#Methods) | `concat`<br>`includes`<br>`indexOf`<br>`join`<br>`lastIndexOf`<br>`slice` | `// Returns true.`<br>`[1, 2, 3].includes(1)` |
 | [`String`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#Methods) | `charAt`<br>`charCodeAt`<br>`concat`<br>`indexOf`<br>`lastIndexOf`<br>`slice`<br>`split`<br>`substr`<br>`substring`<br>`toLowerCase`<br>`toUpperCase` | `// Returns 'abcdef'.`<br>`'abc'.concat('def')` |
 | [`Math`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math)<sup>2</sup> | `abs`<br>`ceil`<br>`floor`<br>`max`<br>`min`<br>`random`<br>`round`<br>`sign` | `// Returns 1.`<br>`abs(-1)` |
+| [`Global`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects)<sup>2</sup> | `encodeURI`<br>`encodeURIComponent`<br>|`// Returns 'hello%20world'`<br>`encodeURIComponent('hello world')`
 | [Custom built-ins](#custom-built-in-functions)<sup>2</sup> | `copyAndSplice` | `// Returns [1, 47 ,3].`<br>`copyAndSplice([1, 2, 3], 1, 1, 47)` |
 
 <sup>2</sup>Functions are not namespaced, e.g. use `abs(-1)` instead of `Math.abs(-1)`.
@@ -283,6 +284,7 @@ Only binding to the following components and attributes are allowed:
 | `<amp-iframe>` | `[src]` | Changes the iframe's source URL. |
 | `<amp-img>` | `[alt]`<br>`[attribution]`<br>`[src]`<br>`[srcset]` | See corresponding [amp-img attributes](https://www.ampproject.org/docs/reference/components/media/amp-img#attributes). |
 | `<amp-selector>` | `[selected]`<sup>1</sup> | Changes the currently selected children element(s)<br>identified by their `option` attribute values. Supports a comma-separated list of values for multiple selection. [See an example](https://ampbyexample.com/advanced/image_galleries_with_amp-carousel/#linking-carousels-with-amp-bind).
+| `<amp-state>` | `[src]` | Fetches JSON from the new URL and merges it into the existing state. |
 | `<amp-video>` | `[alt]`<br>`[attribution]`<br>`[controls]`<br>`[loop]`<br>`[poster]`<br>`[preload]`<br>`[src]` | See corresponding [amp-video attributes](https://www.ampproject.org/docs/reference/components/media/amp-video#attributes). |
 | `<amp-youtube>` | `[data-videoid]` | Changes the displayed YouTube video. |
 | `<a>` | `[href]` | Changes the link. |

@@ -26,40 +26,136 @@ import {installWebAnimations} from 'web-animations-js/web-animations.install';
 import {listen} from '../../../src/event-helper';
 import {setStyles} from '../../../src/style';
 import {tryParseJson} from '../../../src/json';
-import {user} from '../../../src/log';
+import {user, dev} from '../../../src/log';
 import {viewerForDoc} from '../../../src/services';
 import {viewportForDoc} from '../../../src/services';
+import {Observable} from '../../../src/observable';
+import {getMode} from '../../../src/mode';
+import {getIntersectionChangeEntry} from '../../../src/intersection-observer';
 
 const TAG = 'amp-animation';
 
-class ScrollSync() {
-  observe(element, opt_visibilityConditions){
+class PositionObserver {
+
+  constructor(ampdoc) {
+    this.inabox_ = getMode(this.ampdoc_.win).runtime == 'inabox';
+    dev().assert(!this.inabox_, 'ScrollSync not supported for in-a-box yet');
+
+    this.ampdoc_ = ampdoc;
+
+    this.entries = [];
+    this.started_ = false;
+
+    /** @const @private {!Vsync} */
+    this.vsync_ = vsyncFor(ampdoc.win);
 
   }
+
+  observe(element) {
+    //TODO(aghassemi) handle in-a-box
+    dev().assert(!this.inabox_);
+
+    const elementBelongsToAmpDoc = this.ampdoc_.contains(element);
+    if (!elementBelongsToAmpDoc) {
+      const frameElem = getParentWindowFrameElement(element, this.ampdoc_.win);
+
+      // TODO(aghassemi):
+      dev().warn('ScrollSync observe requested for an element that is inside ' +
+          'a friendly iframe. Using the whole iframe instead of the element');
+      element = frameElem;
+    }
+
+    const positionObservable = new Observable();
+    const entry = {
+      element,
+      positionObservable,
+      position: null,
+    };
+
+    this.elements_.push(entry);
+
+    this.start_();
+
+    return positionObservable;
+  }
+
+  start_() {
+    if (this.started_) {
+      return;
+    }
+    this.started_ = true;
+    this.schedulePass_();
+  }
+
+  schedulePass_() {
+    this.vsync_.mesure(() => {
+      this.pass_();
+      // TODO(aghassemi): optimize this
+      this.schedulePass_();
+    });
+  }
+
+  pass_() {
+    for (let i = 0; i < this.entries_.length; i++) {
+      const entry = this.entries_[i];
+      const elementBox = this.viewport_.getLayoutRect(entry.element);
+
+      const position = elementBox;
+      if (!this.layoutRectEquals_(entry.position, position)) {
+        entry.positionObservable.fire(position);
+        entry.position = elementBox;
+      }
+    }
+  }
+
+  //TODO(aghassemi): Move to layout-rect.js as helper method
+  layoutRectEquals_(l1, l2) {
+    return l1.left == l2.left && l1.top == l2.top &&
+        l1.width == l2.width && l1.height == l2.height;
+  }
+
 }
 
-class Scene {
-   constuctor(element, opt_visibilityConditions) {
+// TODO(aghassemi): Add visibility conditions.
+class ScrollboundScene {
 
-   }
+  constructor(ampdoc, element) {
+    this.viewport_ = viewportForDoc(ampdoc);
 
-   onVisibilityChanged() {
+    this.positionObserver_ = new PositionObserver(ampdoc);
+    this.element_ = element;
 
-   }
-}
+    this.scrollDurationObservable = new Observable();
+    this.positionObservable = new Observable();
 
-class ScrollboundScene extends Scene {
-   constuctor(element, opt_is3p, opt_visibilityConditions) {
-     super(element, opt_is3p, opt_visibilityConditions);
-   }
+    this.setupEventHandlers_();
+  }
 
-   onScrollDurationChanged() {
+  setupEventHandlers_() {
+    this.positionObserver_.observe(this.element_).add(
+      this.onPositionChanged_.bind(this)
+    );
 
-   }
+    this.onScrollDurationChanged();
+    this.viewport_.onChanged(this.onScrollDurationChanged.bind(this));
+  }
 
-   onPositionChanged() {
+  onPositionChanged_(newPos) {
+    // Only fire if visible
+    // TODO(aghassemi): Consider embed specific visibility as part of this.
+    const vpBox = this.viewport_.getRect();
+    const intersection = getIntersectionChangeEntry(newPos, null, vpBox);
+    const isVisible = intersection.intersectionRatio > 0;
 
-   }
+    if (isVisible) {
+      this.positionObservable.fire(newPos.bottom);
+    }
+  }
+
+  onScrollDurationChanged_() {
+    const newDuration = this.viewport_.getHeight();
+    this.scrollDurationObservable.fire(newDuration);
+  }
 }
 
 export class AmpAnimation extends AMP.BaseElement {
@@ -141,10 +237,6 @@ export class AmpAnimation extends AMP.BaseElement {
     const embed =
         frameElement ? getFriendlyIframeEmbedOptional(frameElement) : null;
     if (embed) {
-      const viewport = viewportForDoc(frameElement);
-      viewport.onScroll(a => {
-        console.log('b', a);
-      });
       this.embed_ = embed;
       this.setVisible_(embed.isVisible());
       embed.onVisibilityChanged(() => {
@@ -163,6 +255,33 @@ export class AmpAnimation extends AMP.BaseElement {
         }
       });
     }
+  }
+
+  setupScrollboundAnimatins_() {
+    dev().assert(this.runner_);
+    if (!this.runner_.hasScrollboundAnimations()) {
+      return;
+    }
+
+    let sceneElement = null;
+    if (this.embed_) {
+      sceneElement = this.element;
+    } else {
+      const sceneId = this.element.getAttribute('scene-id');
+      user().assert(sceneId,
+        'scene-id must be specified for non-embed amp-animations');
+      sceneElement = this.getAmpDoc().getElementById(sceneId);
+    }
+
+    this.scene_ = new ScrollboundScene(this.getAmpDoc(), sceneElement);
+
+    this.scene_.scrollDurationObservable.add(newDuration => {
+      this.runner_.updateScrollDuration(newDuration);
+    });
+
+    this.scene_.positionObservable.add(newPos => {
+      this.runner_.scrollTick(newPos.bottom);
+    });
   }
 
   /** @override */
@@ -251,6 +370,7 @@ export class AmpAnimation extends AMP.BaseElement {
     return this.createRunner_().then(runner => {
       this.runner_ = runner;
       this.runner_.onPlayStateChanged(this.playStateChanged_.bind(this));
+      this.setupScrollboundAnimatins_();
       this.runner_.start();
     });
   }

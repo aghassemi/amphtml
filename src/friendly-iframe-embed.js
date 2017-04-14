@@ -434,6 +434,10 @@ export class FriendlyIframeEmbed {
     return this.visibilityObservable_.add(handler);
   }
 
+  onScroll() {
+
+  }
+
   /**
    * @param {boolean} visible
    * @private

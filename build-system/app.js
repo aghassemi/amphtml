@@ -123,51 +123,6 @@ app.use('/form/redirect-to/post', function(req, res) {
   res.end('{}');
 });
 
-
-function assertCors(req, res, opt_validMethods, opt_exposeHeaders) {
-  const validMethods = opt_validMethods || ['GET', 'POST', 'OPTIONS'];
-  const invalidMethod = req.method + ' method is not allowed. Use POST.';
-  const invalidOrigin = 'Origin header is invalid.';
-  const invalidSourceOrigin = '__amp_source_origin parameter is invalid.';
-  const unauthorized = 'Unauthorized Request';
-  var origin;
-
-  if (validMethods.indexOf(req.method) == -1) {
-    res.statusCode = 405;
-    res.end(JSON.stringify({message: invalidMethod}));
-    throw invalidMethod;
-  }
-
-  if (req.headers.origin) {
-    origin = req.headers.origin;
-    if (!ORIGIN_REGEX.test(req.headers.origin)) {
-      res.statusCode = 500;
-      res.end(JSON.stringify({message: invalidOrigin}));
-      throw invalidOrigin;
-    }
-
-    if (!SOURCE_ORIGIN_REGEX.test(req.query.__amp_source_origin)) {
-      res.statusCode = 500;
-      res.end(JSON.stringify({message: invalidSourceOrigin}));
-      throw invalidSourceOrigin;
-    }
-  } else if (req.headers['amp-same-origin'] == 'true') {
-    origin = getUrlPrefix(req);
-  } else {
-    res.statusCode = 401;
-    res.end(JSON.stringify({message: unauthorized}));
-    throw unauthorized;
-  }
-
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', origin);
-  res.setHeader('Access-Control-Expose-Headers',
-      ['AMP-Access-Control-Allow-Source-Origin']
-          .concat(opt_exposeHeaders || []).join(', '));
-  res.setHeader('AMP-Access-Control-Allow-Source-Origin',
-      req.query.__amp_source_origin);
-}
-
 app.use('/form/echo-json/post', function(req, res) {
   assertCors(req, res, ['POST']);
   var form = new formidable.IncomingForm();
@@ -251,13 +206,8 @@ function proxyToAmpProxy(req, res, minify) {
     body = replaceUrls(minify ? 'min' : 'max', body, urlPrefix, inabox);
     if (inabox) {
       // Allow CORS requests for A4A.
-      res.setHeader('Access-Control-Allow-Credentials', 'true');
-      res.setHeader('Access-Control-Allow-Origin',
-          req.headers.origin || urlPrefix);
-      res.setHeader('Access-Control-Expose-Headers',
-          'AMP-Access-Control-Allow-Source-Origin');
-      res.setHeader('AMP-Access-Control-Allow-Source-Origin',
-          req.query.__amp_source_origin);
+      const origin = req.headers.origin || urlPrefix;
+      enableCors(req, res, origin);
     }
     res.status(response.statusCode).send(body);
   });
@@ -654,6 +604,11 @@ app.get(['/examples/*', '/test/manual/*'], function(req, res, next) {
           req.query.__amp_source_origin);
     }
 
+    if (inabox && req.headers.origin && req.query.__amp_source_origin) {
+      // Allow CORS requests for A4A.
+      enableCors(req, res, req.headers.origin);
+    }
+
     // Extract amp-ad for the given 'type' specified in URL query.
     if (req.path.indexOf('/examples/ads.amp') == 0 && req.query.type) {
       var ads = file.match(new RegExp('<(amp-ad|amp-embed) [^>]*[\'"]'
@@ -668,11 +623,51 @@ app.get(['/examples/*', '/test/manual/*'], function(req, res, next) {
   });
 });
 
+// Data for example: http://localhost:8000/examples/bind/xhr.amp.max.html
 app.use('/bind/form/get', function(req, res, next) {
   assertCors(req, res, ['GET']);
   res.json({
     bindXhrResult: 'I was fetched from the server!'
   });
+});
+
+// Data for example: http://localhost:8000/examples/bind/ecommerce.amp.max.html
+app.use('/bind/ecommerce/sizes', function(req, res, next) {
+  assertCors(req, res, ['GET']);
+  setTimeout(() => {
+    var prices = {
+      "0": {
+        "sizes": ["XS"]
+      },
+      "1": {
+        "sizes": ["S", "M", "L"]
+      },
+      "2": {
+        "sizes": ["XL"]
+      },
+      "3": {
+        "sizes": ["M", "XL"]
+      },
+      "4": {
+        "sizes": ["S", "L"]
+      },
+      "5": {
+        "sizes": ["S", "XL"]
+      },
+      "6": {
+        "sizes": ["XS", "M"]
+      },
+      "7": {
+        "sizes": ["M", "L", "XL"]
+      },
+      "8": {
+        "sizes": ["XS", "M", "XL"]
+      }
+    };
+    const object = {};
+    object[req.query.shirt] = prices[req.query.shirt];
+    res.json(object);
+  }, 1000); // Simulate network delay.
 });
 
 // Simulated Cloudflare signed Ad server
@@ -900,6 +895,54 @@ function addQueryParam(url, param, value) {
     url += '&' + paramValue;
   }
   return url;
+}
+
+function enableCors(req, res, origin, opt_exposeHeaders) {
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', origin);
+  res.setHeader('Access-Control-Expose-Headers',
+      ['AMP-Access-Control-Allow-Source-Origin']
+          .concat(opt_exposeHeaders || []).join(', '));
+  res.setHeader('AMP-Access-Control-Allow-Source-Origin',
+      req.query.__amp_source_origin);
+}
+
+function assertCors(req, res, opt_validMethods, opt_exposeHeaders) {
+  const validMethods = opt_validMethods || ['GET', 'POST', 'OPTIONS'];
+  const invalidMethod = req.method + ' method is not allowed. Use POST.';
+  const invalidOrigin = 'Origin header is invalid.';
+  const invalidSourceOrigin = '__amp_source_origin parameter is invalid.';
+  const unauthorized = 'Unauthorized Request';
+  var origin;
+
+  if (validMethods.indexOf(req.method) == -1) {
+    res.statusCode = 405;
+    res.end(JSON.stringify({message: invalidMethod}));
+    throw invalidMethod;
+  }
+
+  if (req.headers.origin) {
+    origin = req.headers.origin;
+    if (!ORIGIN_REGEX.test(req.headers.origin)) {
+      res.statusCode = 500;
+      res.end(JSON.stringify({message: invalidOrigin}));
+      throw invalidOrigin;
+    }
+
+    if (!SOURCE_ORIGIN_REGEX.test(req.query.__amp_source_origin)) {
+      res.statusCode = 500;
+      res.end(JSON.stringify({message: invalidSourceOrigin}));
+      throw invalidSourceOrigin;
+    }
+  } else if (req.headers['amp-same-origin'] == 'true') {
+    origin = getUrlPrefix(req);
+  } else {
+    res.statusCode = 401;
+    res.end(JSON.stringify({message: unauthorized}));
+    throw unauthorized;
+  }
+
+  enableCors(req, res, origin, opt_exposeHeaders);
 }
 
 module.exports = app;

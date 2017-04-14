@@ -86,11 +86,15 @@ export class ScrollboundPlayer {
     this.animation_.cancel();
   }
 
-  tick_(delta) {
+  tick(pos) {
     if (this.paused_) {
       return;
     }
-    this.player_.currentTime += delta;
+    this.player_.currentTime = pos;
+  }
+
+  updateDuration(newDuration) {
+    this.player_.duration = newDuration;
   }
 }
 
@@ -217,12 +221,30 @@ export class WebAnimationRunner {
     });
   }
 
-  scrollTick(delta) {
+  scrollTick(pos) {
     this.players_.forEach(player => {
       if (player.ticker == Tickers.SCROLL) {
-        player.tick_(delta);
+        player.tick_(pos);
       }
     });
+  }
+
+  updateScrollDuration(newDuration) {
+    this.players_.forEach(player => {
+      if (player.ticker == Tickers.SCROLL) {
+        player.updateDuration(newDuration);
+      }
+    });
+  }
+
+  hasScrollboundAnimations() {
+    for (let i = 0; i < this.players_.length; i++) {
+      if (this.players_[i].ticker == Tickers.SCROLL) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**
