@@ -128,6 +128,7 @@ class ScrollboundScene {
 
   constructor(ampdoc, element) {
     this.viewport_ = viewportForDoc(ampdoc);
+    this.vsync_ = vsyncFor(ampdoc.win);
 
     this.positionObserver_ = new PositionObserver(ampdoc);
     this.element_ = element;
@@ -143,24 +144,35 @@ class ScrollboundScene {
       this.onPositionChanged_.bind(this)
     );
 
-    this.onScrollDurationChanged_();
-    this.viewport_.onChanged(this.onScrollDurationChanged_.bind(this));
+    //this.viewport_.onChanged(this.onScrollDurationChanged_.bind(this));
+
+    this.vsync_.mutate(() => {
+      this.onScrollDurationChanged_();
+    });
   }
 
   onPositionChanged_(newPos) {
     // Only fire if visible
     // TODO(aghassemi): Consider embed specific visibility as part of this.
     const vpBox = this.viewport_.getRect();
-    const intersection = getIntersectionChangeEntry(newPos, null, vpBox);
-    const isVisible = intersection.intersectionRatio > 0;
+    const isFullyVisible = newPos.bottom <= vpBox.height && newPos.top >= 0;
 
-    if (isVisible) {
-      this.positionObservable.fire(newPos.bottom);
+    if (isFullyVisible) {
+      this.positionObservable.fire(vpBox.height - newPos.bottom);
+    } else {
+      // send the final position
+      if (newPos.bottom < 0) {
+        this.positionObservable.fire(vpBox.height);
+      } else {
+        this.positionObservable.fire(0);
+      }
+
     }
   }
 
   onScrollDurationChanged_() {
-    const newDuration = this.viewport_.getHeight();
+    const elementBox = this.viewport_.getLayoutRect(this.element_);
+    const newDuration = this.viewport_.getHeight() - elementBox.height;
     this.scrollDurationObservable.fire(newDuration);
   }
 }
@@ -278,7 +290,7 @@ export class AmpAnimation extends AMP.BaseElement {
 
     let sceneElement = null;
     if (this.embed_) {
-      sceneElement = this.element;
+      sceneElement = this.embed_.iframe;
     } else {
       const sceneId = this.element.getAttribute('scene-id');
       user().assert(sceneId,

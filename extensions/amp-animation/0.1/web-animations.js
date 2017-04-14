@@ -70,16 +70,23 @@ export class ScrollboundPlayer {
   constructor(request) {
     this.animation_ = request.target.animate(request.keyframes, request.timing);
     this.animation_.pause();
-    this.paused_ = false;
     this.request_ = request;
   }
 
+  restart() {
+    const currentTime = this.animation_.currentTime;
+    this.animation_ = this.request_.target.animate(
+        this.request_.keyframes, this.request_.timing);
+    this.animation_.pause();
+    this.animation_.currentTime = currentTime;
+  }
+
   pause() {
-    this.paused_ = true;
+    // this.paused_ = true;
   }
 
   play() {
-    this.paused_ = false;
+    // this.paused_ = false;
   }
 
   cancel() {
@@ -88,9 +95,9 @@ export class ScrollboundPlayer {
   }
 
   tick(pos) {
-    if (this.paused_) {
-      return;
-    }
+    // if (this.paused_) {
+    //   return;
+    // }
     this.animation_.currentTime = pos;
   }
 
@@ -231,15 +238,15 @@ export class WebAnimationRunner {
   }
 
   updateScrollDuration(newDuration) {
-    this.players_.forEach(player => {
-      if (player.ticker == Tickers.SCROLL) {
-        player.updateDuration(newDuration);
-      }
-    });
-
     this.requests_.forEach(request => {
       if (request.timing.ticker == Tickers.SCROLL) {
         request.timing.duration = newDuration;
+      }
+    });
+
+    this.players_.forEach(player => {
+      if (player.ticker == Tickers.SCROLL) {
+        player.restart();
       }
     });
   }
