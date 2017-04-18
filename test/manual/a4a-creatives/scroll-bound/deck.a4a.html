@@ -27,17 +27,31 @@
       "direction": "alternate",
       "animations": [
         {
-          "target": "image1",
-          "keyframes": {
-            "transform": "rotate(360deg)"
-          }
+          "target": "slides",
+          "keyframes": [
+            { "transform": "translateY(0)" },
+            { "transform": "translateY(0)", "offset": 0.25 },
+            { "transform": "translateY(-250px)", "offset": 0.25 },
+            { "transform": "translateY(-250px)", "offset": 0.85 },
+            { "transform": "translateY(-500px)", "offset": 0.85 },
+            { "transform": "translateY(-500px)" }
+          ]
         }
       ]
     }
     </script>
   </amp-animation>
-  <amp-img id="image1" width="300" height="250" layout="responsive"
-      src="https://unsplash.it/300/250?image=1040">
-  </amp-img>
+  <div id="slides">
+    <amp-img id="image1" width="300" height="250" layout="responsive"
+      src="https://unsplash.it/300/250?image=2">
+    </amp-img>
+    <amp-img id="image1" width="300" height="250" layout="responsive"
+        src="https://unsplash.it/300/250?image=0">
+    </amp-img>
+    <amp-img id="image1" width="300" height="250" layout="responsive"
+        src="https://unsplash.it/300/250?image=8">
+    </amp-img>
+  </div>
+
 </body>
 </html>

@@ -161,7 +161,7 @@ class ScrollboundScene {
       this.positionObservable.fire(vpBox.height - newPos.bottom);
     } else {
       // send the final position
-      if (newPos.bottom < 0) {
+      if (newPos.bottom < vpBox.height) {
         this.positionObservable.fire(vpBox.height);
       } else {
         this.positionObservable.fire(0);
