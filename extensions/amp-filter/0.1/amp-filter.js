@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+
+/*
+ * WARNING: Prototype code. Please only use as starting point for a proper
+ * implementation.
+ */
 import {CSS} from '../../../build/amp-filter-0.1.css';
 import {dev, user} from '../../../src/log';
 import {Observable} from '../../../src/observable';
@@ -122,6 +127,7 @@ export class AmpFilter extends AMP.BaseElement {
     const operator = mutations['operator'];
     if (operator) {
       this.operator_ = operator;
+      this.reevaluate_();
     }
   }
 
@@ -143,6 +149,11 @@ class AbstractAmpFilterCondition extends AMP.BaseElement {
   evaluate(unusedTarget) {};
   isActive() {};
   getTargetSelector() {};
+}
+
+// TODO
+class AmpFilterConditionGroup extends AbstractAmpFilterCondition {
+
 }
 
 class AmpFilterCondition extends AbstractAmpFilterCondition {
@@ -217,3 +228,4 @@ class AmpFilterCondition extends AbstractAmpFilterCondition {
 
 AMP.registerElement('amp-filter', AmpFilter, CSS);
 AMP.registerElement('amp-filter-condition', AmpFilterCondition);
+AMP.registerElement('amp-filter-condition-group', AmpFilterConditionGroup);

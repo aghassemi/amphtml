@@ -228,8 +228,8 @@ function createElementRules_() {
     'AMP-FILTER-CONDITION': {
       'toggled': null,
     },
-    'AMP-FILTER-CONDITION': {
-      'toggled': null,
+    'AMP-FILTER': {
+      'operator': null,
     },
     'AMP-IMG': {
       'alt': null,
