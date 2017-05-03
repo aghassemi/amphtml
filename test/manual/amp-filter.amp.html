@@ -1,0 +1,162 @@
+<!doctype html>
+<html ⚡>
+
+<head>
+  <meta charset="utf-8">
+  <title>AMP #0</title>
+  <link rel="canonical" href="amps.html">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+  <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+  <style amp-custom>
+    body {
+      font-family: 'Roboto', Arial;
+    }
+
+    .items {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      min-width: 47vw;
+      min-height: 47vw;
+      flex: 0;
+      margin: 1vw;
+      position: relative;
+    }
+
+    .card amp-img img {
+      object-fit: contain;
+    }
+  </style>
+<style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style>
+<noscript>
+  <style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style>
+</noscript>
+
+<script>
+  // WARNING: This script tag makes this page an INVALID AMP Page.
+  // This code is here for demo purposes and enables the required experiments
+  // automatically for this demo so that visitors do not need to enable them manually.
+  var experiments = ['amp-bind', 'amp-sort', 'amp-filter'];
+  var interval = setInterval(function () {
+    if (window.AMP && window.AMP.isExperimentOn) {
+      if (!allExperimentsEnabled()) {
+        enableAllExperiments();
+      }
+      clearInterval(interval);
+    }
+  }, 50);
+  var allExperimentsEnabled = function () {
+    var allEnabled = true;
+    for (var i = 0; i < experiments.length; i++) {
+      allEnabled = allEnabled && window.AMP.isExperimentOn(experiments[i]);
+    }
+    return allEnabled;
+  }
+  var enableAllExperiments = function () {
+    for (var i = 0; i < experiments.length; i++) {
+      window.AMP.toggleExperiment(experiments[i], true);
+    }
+    window.location.reload(true);
+  }
+</script>
+
+<script async custom-element="amp-bind" src="../../dist/v0/amp-bind-0.1.max.js"></script>
+<script async custom-element="amp-filter" src="../../dist/v0/amp-filter-0.1.max.js"></script>
+<script async src="../../dist/amp.js"></script>
+</head>
+
+<body>
+
+<h1>amp-filter prototyes</h1>
+<h2>1- Single Condition</h2>
+<amp-filter layout="container" operator="or" [operator]="selectedOperator">
+  <amp-filter-condition
+    id="onSaleFilter"
+    attr="data-on-sale"
+    condition="1">
+  </amp-filter-condition>
+
+  <amp-filter-condition
+    id="isNewFilter"
+    attr="data-is-new"
+    condition="1">
+  </amp-filter-condition>
+
+  <h3>Filters:</h3>
+  <label><input type="checkbox" on="change:onSaleFilter.toggle(on=event.checked)">
+    On Sale
+  </input></label>
+
+  <select on="change:AMP.setState({selectedOperator: event.value})">
+    <option value="or">OR</option>
+    <option value="and">AND</option>
+  </select>
+
+  <label><input type="checkbox" on="change:isNewFilter.toggle(on=event.checked)">
+    New
+  </input></label>
+
+    <div class="items">
+      <div class="card" data-on-sale="0" data-color="red" data-price="20" data-is-new="1">
+        <amp-img
+          layout="fill"
+          src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=d50000&txt=$20 - New!">
+        </amp-img>
+      </div>
+
+      <div class="card" data-on-sale="1" data-price="10" data-is-new="0">
+        <amp-img
+          layout="fill"
+          src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=4CAF50&txt=$10 - On Sale">
+        </amp-img>
+      </div>
+
+      <div class="card" data-on-sale="0" data-price="30" data-is-new="0">
+        <amp-img
+          layout="fill"
+          src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=03A9F4&txt=$30">
+        </amp-img>
+      </div>
+
+      <div class="card" data-on-sale="1" data-price="40" data-is-new="1">
+        <amp-img
+          layout="fill"
+          src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=FFC107&txt=$40 - New - On Sale">
+        </amp-img>
+      </div>
+
+      <div class="card" data-on-sale="0" data-price="27" data-is-new="0">
+        <amp-img
+          layout="fill"
+          src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=4CAF50&txt=$27">
+        </amp-img>
+      </div>
+
+      <div class="card" data-on-sale="1" data-price="25" data-is-new="0">
+        <amp-img
+          layout="fill"
+          src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=d50000&txt=$25 - On Sale">
+        </amp-img>
+      </div>
+
+      <div class="card" data-on-sale="0" data-price="70" data-is-new="1">
+        <amp-img
+          layout="fill"
+          src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=d50000&txt=$70 - New">
+        </amp-img>
+      </div>
+
+      <div class="card" data-on-sale="0" data-price="35" data-is-new="1">
+        <amp-img
+          layout="fill"
+          src="https://placeholdit.imgix.net/~text?&w=400&h=400&txtsize=38&bg=4CAF50&txt=$35 - New">
+        </amp-img>
+      </div>
+    </div>
+</amp-filter>
+
+</body>
+</html>

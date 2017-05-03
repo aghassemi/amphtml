@@ -81,6 +81,7 @@ declareExtension('amp-form', '0.1', true);
 declareExtension('amp-fresh', '0.1', true);
 declareExtension('amp-fx-flying-carpet', '0.1', true);
 declareExtension('amp-fx-parallax', '0.1', false);
+declareExtension('amp-filter', '0.1', true);
 declareExtension('amp-gfycat', '0.1', false);
 declareExtension('amp-gist', '0.1', false);
 declareExtension('amp-hulu', '0.1', false);
