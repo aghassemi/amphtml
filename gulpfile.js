@@ -47,6 +47,7 @@ var extensions = {};
 
 // Each extension and version must be listed individually here.
 // NOTE: No new extensions must pass the NO_TYPE_CHECK argument.
+declareExtension('amp-3q-player', '0.1', false, 'NO_TYPE_CHECK');
 declareExtension('amp-access', '0.1', true, 'NO_TYPE_CHECK');
 declareExtension('amp-access-laterpay', '0.1', true, 'NO_TYPE_CHECK');
 declareExtension('amp-accordion', '0.1', true);
@@ -75,6 +76,7 @@ declareExtension('amp-dynamic-css-classes', '0.1', false, 'NO_TYPE_CHECK');
 declareExtension('amp-experiment', '0.1', false, 'NO_TYPE_CHECK');
 declareExtension('amp-facebook', '0.1', false);
 declareExtension('amp-facebook-comments', '0.1', false);
+declareExtension('amp-facebook-like', '0.1', false);
 declareExtension('amp-fit-text', '0.1', true, 'NO_TYPE_CHECK');
 declareExtension('amp-font', '0.1', false, 'NO_TYPE_CHECK');
 declareExtension('amp-form', '0.1', true);
@@ -117,6 +119,7 @@ declareExtension('amp-selector', '0.1', true);
  */
 declareExtension('amp-slides', '0.1', false, 'NO_TYPE_CHECK');
 declareExtension('amp-social-share', '0.1', true);
+declareExtension('amp-timeago', '0.1', false);
 declareExtension('amp-twitter', '0.1', false);
 declareExtension('amp-user-notification', '0.1', true, 'NO_TYPE_CHECK');
 declareExtension('amp-vimeo', '0.1', false, 'NO_TYPE_CHECK');
@@ -244,6 +247,18 @@ function compile(watch, shouldMinify, opt_preventRemoveAndMakeDir,
           's.animation="none";' +
           's.WebkitAnimation="none;"},1000);throw e};'
     }),
+
+    compileJs('./extensions/amp-viewer-integration/0.1/examples/',
+      'amp-viewer-host.js', './dist/v0/examples', {
+        toName: 'amp-viewer-host.max.js',
+        minifiedName: 'amp-viewer-host.js',
+        incudePolyfills: true,
+        watch: watch,
+        extraGlobs: ['extensions/amp-viewer-integration/**/*.js'],
+        compilationLevel: 'WHITESPACE_ONLY',
+        preventRemoveAndMakeDir: opt_preventRemoveAndMakeDir,
+        minify: false,
+      }),
   ];
   if (opt_checkTypes) {
     // We don't rerun type check for the shadow entry point for now.
@@ -322,6 +337,8 @@ function compileCss() {
               JSON.stringify(css)))
           .pipe(gulp.dest('build'))
           .on('end', function() {
+            mkdirSync('build');
+            mkdirSync('build/css');
             fs.writeFileSync('build/css/v0.css', css);
           }));
   });

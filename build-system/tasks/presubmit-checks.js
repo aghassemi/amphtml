@@ -277,10 +277,19 @@ var forbiddenTerms = {
       'ads/inabox/inabox-host.js',
       'dist.3p/current/integration.js',
       'extensions/amp-access/0.1/amp-login-done.js',
+      'extensions/amp-viewer-integration/0.1/examples/amp-viewer-host.js',
       'src/runtime.js',
       'src/log.js',
       'src/web-worker/web-worker.js',
       'tools/experiments/experiments.js',
+    ],
+  },
+  'parseUrlWithA': {
+    message: 'Use parseUrl instead.',
+    whitelist: [
+      'src/url.js',
+      'src/service/document-click.js',
+      'dist.3p/current/integration.js',
     ],
   },
   '\\.sendMessage\\(': {
@@ -736,6 +745,21 @@ var forbiddenTermsSrcInclusive = {
   },
   '\\>\\>\\>\\>\\>\\>': {
     message: 'Unresolved merge conflict.',
+  },
+  '\\.indexOf\\([\'"][^)]+\\)\\s*===?\\s*0\\b': {
+    message: 'use startsWith helper in src/string.js',
+    whitelist: [
+      'dist.3p/current/integration.js',
+    ],
+  },
+  '\\.indexOf\\(.*===?.*\\.length': 'use endsWith helper in src/string.js',
+  '/url-parse-query-string': {
+    message: 'Import parseQueryString from `src/url.js`',
+    whitelist: [
+      'src/url.js',
+      'src/mode.js',
+      'dist.3p/current/integration.js',
+    ],
   },
 };
 

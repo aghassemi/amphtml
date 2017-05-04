@@ -28,6 +28,7 @@ import {addParamsToUrl} from '../../../src/url';
 import {isObject} from '../../../src/types';
 import {VideoEvents} from '../../../src/video-interface';
 import {videoManagerForDoc} from '../../../src/services';
+import {startsWith} from '../../../src/string';
 
 /**
  * @enum {number}
@@ -187,7 +188,6 @@ class AmpYoutube extends AMP.BaseElement {
     iframe.setAttribute('allowfullscreen', 'true');
     iframe.src = src;
     this.applyFillContent(iframe);
-    this.element.appendChild(iframe);
 
     this.iframe_ = iframe;
 
@@ -197,13 +197,14 @@ class AmpYoutube extends AMP.BaseElement {
       this.handleYoutubeMessages_.bind(this)
     );
 
-    this.win.addEventListener(
-      'message', event => this.handleYoutubeMessages_(event)
-    );
-
-    return this.loadPromise(iframe)
-        .then(() => this.listenToFrame_())
-        .then(() => this.playerReadyPromise_);
+    this.element.appendChild(this.iframe_);
+    const loaded = this.loadPromise(this.iframe_).then(() => {
+      // Tell YT that we want to receive messages
+      this.listenToFrame_();
+      this.element.dispatchCustomEvent(VideoEvents.LOAD);
+    });
+    this.playerReadyResolver_(loaded);
+    return loaded;
   }
 
   /** @override */
@@ -260,7 +261,7 @@ class AmpYoutube extends AMP.BaseElement {
    * @param {string} command
    * @param {Array=} opt_args
    * @private
-   * */
+   */
   sendCommand_(command, opt_args) {
     this.playerReadyPromise_.then(() => {
       if (this.iframe_ && this.iframe_.contentWindow) {
@@ -280,18 +281,14 @@ class AmpYoutube extends AMP.BaseElement {
         event.source != this.iframe_.contentWindow) {
       return;
     }
-    if (!event.data ||
-        !(isObject(event.data) || event.data.indexOf('{') == 0)) {
+    if (!event.data || !(isObject(event.data) || startsWith(event.data, '{'))) {
       return;  // Doesn't look like JSON.
     }
     const data = isObject(event.data) ? event.data : tryParseJson(event.data);
     if (data === undefined) {
       return; // We only process valid JSON.
     }
-    if (data.event == 'onReady') {
-      this.element.dispatchCustomEvent(VideoEvents.LOAD);
-      this.playerReadyResolver_(this.iframe_);
-    } else if (data.event == 'infoDelivery' &&
+    if (data.event == 'infoDelivery' &&
         data.info && data.info.playerState !== undefined) {
       this.playerState_ = data.info.playerState;
       if (this.playerState_ == PlayerStates.PAUSED) {
