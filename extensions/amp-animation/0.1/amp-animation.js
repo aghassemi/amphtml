@@ -295,11 +295,6 @@ export class AmpAnimation extends AMP.BaseElement {
     let sceneElement = null;
     if (this.embed_) {
       sceneElement = this.embed_.iframe;
-    } else {
-      const sceneId = this.element.getAttribute('scene-id');
-      user().assert(sceneId,
-        'scene-id must be specified for non-embed amp-animations');
-      sceneElement = this.getAmpDoc().getElementById(sceneId);
     }
 
     this.scene_ = new ScrollboundScene(this.getAmpDoc(), sceneElement);
