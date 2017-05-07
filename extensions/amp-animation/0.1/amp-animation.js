@@ -18,9 +18,9 @@ import {MeasureScanner} from './web-animations';
 import {Pass} from '../../../src/pass';
 import {WebAnimationPlayState} from './web-animation-types';
 import {childElementByTag} from '../../../src/dom';
-import {getFriendlyIframeEmbedOptional,}
+import {getFriendlyIframeEmbedOptional}
     from '../../../src/friendly-iframe-embed';
-import {getParentWindowFrameElement} from '../../../src/service';
+import {getParentWindowFrameElement, getServiceForDoc} from '../../../src/service';
 import {isExperimentOn} from '../../../src/experiments';
 import {installWebAnimations} from 'web-animations-js/web-animations.install';
 import {listen} from '../../../src/event-helper';
@@ -29,6 +29,8 @@ import {tryParseJson} from '../../../src/json';
 import {user, dev} from '../../../src/log';
 import {viewerForDoc} from '../../../src/services';
 import {viewportForDoc, vsyncFor} from '../../../src/services';
+import {installPositionObserverServiceForDoc, PositionObserverFidelity}
+    from '../../../src/service/position-observer';
 import {Observable} from '../../../src/observable';
 import {getMode} from '../../../src/mode';
 import {getIntersectionChangeEntry} from '../../../src/intersection-observer';
@@ -129,51 +131,59 @@ class ScrollboundScene {
   constructor(ampdoc, element) {
     this.viewport_ = viewportForDoc(ampdoc);
     this.vsync_ = vsyncFor(ampdoc.win);
+    installPositionObserverServiceForDoc(ampdoc);
 
-    this.positionObserver_ = new PositionObserver(ampdoc);
+    this.positionObserver_ = getServiceForDoc(ampdoc, 'position-observer');
     this.element_ = element;
 
     this.scrollDurationObservable = new Observable();
     this.positionObservable = new Observable();
 
-    this.setupEventHandlers_();
+    this.scrollDuration_ = null;
+
+    // allow initial registrations of handlers before triggering events.
+    this.vsync_.mutate(() => {
+      this.setupEventHandlers_();
+    });
   }
 
   setupEventHandlers_() {
-    this.positionObserver_.observe(this.element_).add(
-      this.onPositionChanged_.bind(this)
-    );
-
-    //this.viewport_.onChanged(this.onScrollDurationChanged_.bind(this));
-
-    this.vsync_.mutate(() => {
-      this.onScrollDurationChanged_();
-    });
+    this.positionObserver_.observe(this.element_,
+      PositionObserverFidelity.HIGH, this.onPositionChanged_.bind(this));
   }
 
   onPositionChanged_(newPos) {
     // Only fire if visible
     // TODO(aghassemi): Consider embed specific visibility as part of this.
-    const vpBox = this.viewport_.getRect();
-    const isFullyVisible = newPos.bottom <= vpBox.height && newPos.top >= 0;
+    const vpRect = newPos.viewportRect;
+    const posRec = newPos.positionRect;
+    // outside of the viewport
+    if (!posRec) {
+      // TODO: we need to know which way to update positionObservable
+      return;
+    }
+
+    // until we have visibility conditions exposed scroll duration is amount
+    // from when element is fully visible until element is partially
+    // invisible which is basically viewportHeight - elementHeight
+    const scrollDuration = vpRect.height - posRec.height;
+
+    if (scrollDuration != this.scrollDuration_) {
+      this.scrollDuration_ = scrollDuration;
+      this.scrollDurationObservable.fire(scrollDuration);
+    }
+    const isFullyVisible = posRec.bottom <= vpRect.height && posRec.top >= 0;
 
     if (isFullyVisible) {
-      this.positionObservable.fire(vpBox.height - newPos.bottom);
+      this.positionObservable.fire(vpRect.height - posRec.bottom);
     } else {
       // send the final position
-      if (newPos.bottom < vpBox.height) {
-        this.positionObservable.fire(vpBox.height);
+      if (posRec.bottom < vpRect.height) {
+        this.positionObservable.fire(scrollDuration);
       } else {
         this.positionObservable.fire(0);
       }
-
     }
-  }
-
-  onScrollDurationChanged_() {
-    const elementBox = this.viewport_.getLayoutRect(this.element_);
-    const newDuration = this.viewport_.getHeight() - elementBox.height;
-    this.scrollDurationObservable.fire(newDuration);
   }
 }
 
@@ -292,9 +302,13 @@ export class AmpAnimation extends AMP.BaseElement {
       return;
     }
 
-    let sceneElement = null;
+    // TODO: support scene-id attribute as well. Would take over parent as
+    // the scene.
+    let sceneElement;
     if (this.embed_) {
       sceneElement = this.embed_.iframe;
+    } else {
+      sceneElement = this.win.document.documentElement;
     }
 
     this.scene_ = new ScrollboundScene(this.getAmpDoc(), sceneElement);

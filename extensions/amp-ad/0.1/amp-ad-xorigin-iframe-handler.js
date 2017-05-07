@@ -15,7 +15,9 @@
  */
 
 import {AdDisplayState} from './amp-ad-ui';
+import {MessageType} from '../../../src/3p-frame-messaging';
 import {CommonSignals} from '../../../src/common-signals';
+import {isExperimentOn} from '../../../src/experiments';
 import {
   IntersectionObserver,
 } from '../../../src/intersection-observer';
@@ -25,6 +27,11 @@ import {
   listenForOncePromise,
   postMessageToWindows,
 } from '../../../src/iframe-helper';
+import {
+  installPositionObserverServiceForDoc,
+  PositionObserverFidelity,
+} from '../../../src/service/position-observer';
+import {getServiceForDoc} from '../../../src/service';
 import {viewerForDoc} from '../../../src/services';
 import {dev} from '../../../src/log';
 import {timerFor} from '../../../src/services';
@@ -61,6 +68,9 @@ export class AmpAdXOriginIframeHandler {
     /** @private {SubscriptionApi} */
     this.embedStateApi_ = null;
 
+    /** @private {SubscriptionApi} */
+    this.positionObserverHighFidelityApi_ = null;
+
     /** @private {!Array<!Function>} functions to unregister listeners */
     this.unlisteners_ = [];
 
@@ -89,6 +99,21 @@ export class AmpAdXOriginIframeHandler {
     this.embedStateApi_ = new SubscriptionApi(
         this.iframe, 'send-embed-state', true,
         () => this.sendEmbedInfo_(this.baseInstance_.isInViewport()));
+
+
+    if (isExperimentOn(this.baseInstance_.win, 'amp-animation')) {
+      this.positionObserverHighFidelityApi_ = new SubscriptionApi(
+        this.iframe, MessageType.SEND_POSITIONS_HIGH_FIDELITY, true, () => {
+          const ampdoc = this.baseInstance_.getAmpDoc();
+          installPositionObserverServiceForDoc(ampdoc);
+          this.positionObserver_ = getServiceForDoc(ampdoc, 'position-observer');
+
+          this.positionObserver_.observe(this.iframe, PositionObserverFidelity.HIGH, pos => {
+            this.positionObserverHighFidelityApi_.send(MessageType.POSITION_HIGH_FIDELITY, pos);
+          });
+        });
+    }
+
     // Triggered by context.reportRenderedEntityIdentifier(…) inside the ad
     // iframe.
     listenForOncePromise(this.iframe, 'entity-id', true)
@@ -289,6 +314,10 @@ export class AmpAdXOriginIframeHandler {
     if (this.intersectionObserver_) {
       this.intersectionObserver_.destroy();
       this.intersectionObserver_ = null;
+    }
+    if (this.positionObserverHighFidelityApi_) {
+      this.positionObserverHighFidelityApi_.destroy();
+      this.positionObserverHighFidelityApi_ = null;
     }
   }
 

@@ -68,25 +68,38 @@ const SERVICE_PROPS = {
 
 export class ScrollboundPlayer {
   constructor(request) {
-    this.animation_ = request.target.animate(request.keyframes, request.timing);
-    this.animation_.pause();
     this.request_ = request;
+    this.paused_ = false;
+    // if no duration, wait until duration arrives and restart is called.
+    if (request.timing.duration == 0) {
+      return;
+    } else {
+      this.createAnimation_();
+    }
   }
 
-  restart() {
-    const currentTime = this.animation_.currentTime;
-    this.animation_ = this.request_.target.animate(
-        this.request_.keyframes, this.request_.timing);
-    this.animation_.pause();
+  onScrollDurationChanged() {
+    let currentTime = 0;
+    if (this.animation_) {
+      currentTime = this.animation_.currentTime;
+    }
+    // we have to recreate the animation to change its duration
+    this.createAnimation_();
     this.animation_.currentTime = currentTime;
   }
 
+  createAnimation_() {
+    this.animation_ = this.request_.target.animate(
+        this.request_.keyframes, this.request_.timing);
+    this.animation_.pause();
+  }
+
   pause() {
-    // this.paused_ = true;
+    this.paused_ = true;
   }
 
   play() {
-    // this.paused_ = false;
+    this.paused_ = false;
   }
 
   cancel() {
@@ -95,14 +108,10 @@ export class ScrollboundPlayer {
   }
 
   tick(pos) {
-    // if (this.paused_) {
-    //   return;
-    // }
+    if (this.paused_ || !this.animation_) {
+      return;
+    }
     this.animation_.currentTime = pos;
-  }
-
-  updateDuration(newDuration) {
-    this.animation_.duration = newDuration;
   }
 }
 
@@ -246,7 +255,7 @@ export class WebAnimationRunner {
 
     this.players_.forEach(player => {
       if (player.ticker == Tickers.SCROLL) {
-        player.restart();
+        player.onScrollDurationChanged();
       }
     });
   }

@@ -6,15 +6,19 @@
   <meta name="amp-experiments-opt-in" content="amp-animation">
   <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
   <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
-  <script async src="/dist/amp.js"></script>
-  <script async custom-element="amp-animation" src="/dist/v0/amp-animation-0.1.max.js"></script>
+  <script async src="https://cdn.ampproject.org/v0.js"></script>
+  <script async custom-element="amp-animation" src="https://cdn.ampproject.org/v0/amp-animation-0.1.js"></script>
 
   <style>
-    .left {
-      text-align: left;
+    amp-img img {
+      object-fit: cover;
     }
-    .right {
-      text-align: right;
+
+    amp-img {
+      min-width: 100vw;
+      min-height: 100vh;
+      max-width: 100vw;
+      max-height: 100vh;
     }
   </style>
 </head>
@@ -32,10 +36,10 @@
           "keyframes": [
             { "transform": "translateY(0)" },
             { "transform": "translateY(0)", "offset": 0.25 },
-            { "transform": "translateY(-250px)", "offset": 0.25 },
-            { "transform": "translateY(-250px)", "offset": 0.85 },
-            { "transform": "translateY(-500px)", "offset": 0.85 },
-            { "transform": "translateY(-500px)" }
+            { "transform": "translateY(-33.3333%)", "offset": 0.25 },
+            { "transform": "translateY(-33.3333%)", "offset": 0.85 },
+            { "transform": "translateY(-66.6666%)", "offset": 0.85 },
+            { "transform": "translateY(-66.6666%)" }
           ]
         }
       ]
@@ -43,14 +47,14 @@
     </script>
   </amp-animation>
   <div id="slides">
-    <amp-img id="image1" width="300" height="250" layout="responsive"
-      src="https://unsplash.it/300/250?image=2">
+    <amp-img id="image1" width="16" height="9" layout="responsive"
+      src="https://unsplash.it/1600/900?image=2">
     </amp-img>
-    <amp-img id="image1" width="300" height="250" layout="responsive"
-        src="https://unsplash.it/300/250?image=0">
+    <amp-img id="image1" width="16" height="9"  layout="responsive"
+        src="https://unsplash.it/1600/900?image=0">
     </amp-img>
-    <amp-img id="image1" width="300" height="250" layout="responsive"
-        src="https://unsplash.it/300/250?image=8">
+    <amp-img id="image1" width="16" height="9" layout="responsive"
+        src="https://unsplash.it/1600/900?image=8">
     </amp-img>
   </div>
 
