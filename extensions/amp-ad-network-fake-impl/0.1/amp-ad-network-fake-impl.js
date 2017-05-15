@@ -22,6 +22,49 @@ import {resolveRelativeUrl} from '../../../src/url';
 import {utf8EncodeSync, utf8Decode} from '../../../src/utils/bytes';
 
 
+// TODO(alanorozco): remove ugly hack
+/**
+ * @param {!HTMLIFrameElement} iframe
+ * @param {!Window} topLevelWindow
+ */
+function enterFrameFullOverlayMode(iframe, topLevelWindow) {
+  // NOTE: THIS BREAKS VSYNC!
+  const iframeRect = iframe./*OK*/getBoundingClientRect();
+
+  const winWidth = topLevelWindow./*OK*/innerWidth;
+  const winHeight = topLevelWindow./*OK*/innerHeight;
+
+  iframe.contentWindow.postMessage({
+    type: 'frame-restyle-ugly-hack',
+    styles: {
+      'position': 'absolute',
+      'top': (iframeRect.top) + 'px',
+      'right': (winWidth - iframeRect.right) + 'px',
+      'left': (iframeRect.left) + 'px',
+      'bottom': (winHeight - iframeRect.bottom) + 'px',
+      'height': (iframeRect.bottom - iframeRect.top) + 'px',
+      'width': (iframeRect.right - iframeRect.left) + 'px',
+    }
+  }, '*');
+}
+
+
+// TODO(alanorozco): Remove ugly hack
+function listenToIframeOverlayUsingUglyHack() {
+  if (!!window.AMP_LISTENING_TO_FRAME_OVERLAY) {
+    return;
+  }
+  window.addEventListener('message', event => {
+    if (event.data.type && 'enter-frame-overlay-ugly-hack') {
+      enterFrameFullOverlayMode(
+          document.getElementById(event.data.frame), window);
+      return;
+    }
+  });
+  window.AMP_LISTENING_TO_FRAME_OVERLAY = true;
+}
+
+
 export class AmpAdNetworkFakeImpl extends AmpA4A {
 
   /**
@@ -31,6 +74,9 @@ export class AmpAdNetworkFakeImpl extends AmpA4A {
     super(element);
     user().assert(element.hasAttribute('src'),
         'Attribute src required for <amp-ad type="fake">: %s', element);
+
+    // TODO(alanorozco): Remove ugly hack
+    listenToIframeOverlayUsingUglyHack();
   }
 
   /** @override */

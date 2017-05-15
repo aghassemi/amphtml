@@ -98,6 +98,30 @@ function enterFrameFullOverlayMode(iframe, topLevelWindow) {
  * @param {!HTMLIFrameElement} iframe
  * @param {!Window} topLevelWindow
  */
+function enterFrameFullOverlayModeFromMessage(iframe, topLevelWindow, styles) {
+  const iframeDoc = iframe.contentDocument;
+  const iframeBody = /** @type {!HTMLBodyElement} */ (iframeDoc.body);
+  const adBannerRoot = getAdBannerRoot(iframeBody);
+
+  vsyncFor(topLevelWindow).mutate(() => {
+    st.setStyle(iframeBody, 'background', 'transparent');
+
+    st.setStyles(iframe, {
+      'position': 'fixed',
+      'z-index': 1000,
+    });
+
+    st.setStyles(adBannerRoot, styles);
+  });
+}
+
+
+// TODO(alanorozco):
+//   Move this where it makes sense (possibly FriendlyIframeEmbed?)
+/**
+ * @param {!HTMLIFrameElement} iframe
+ * @param {!Window} topLevelWindow
+ */
 function leaveFrameFullOverlayMode(iframe, topLevelWindow) {
   const iframeDoc = iframe.contentDocument;
   const iframeBody = /** @type {!HTMLBodyElement} */ (iframeDoc.body);
@@ -117,6 +141,34 @@ function leaveFrameFullOverlayMode(iframe, topLevelWindow) {
       'position': null,
     });
   });
+}
+
+
+// TODO(alanorozco): Remove ugly hack
+function enterFrameFullOverlayModeUsingUglyHack() {
+  if (!window.frameElement.id || !window.frameElement.id.length) {
+    window.AMP_FRAME_ID = window.AMP_FRAME_ID || 0;
+    window.frameElement.id = 'amp-ad-frame-' + (window.AMP_FRAME_ID++);
+  }
+  if (!window.AMP_LISTENING_TO_FRAME_MESSAGE) {
+    window.AMP_LISTENING_TO_FRAME_MESSAGE = true;
+    window.addEventListener('message', event => {
+      if (event.data.type && event.data.type == 'frame-restyle-ugly-hack') {
+        enterFrameFullOverlayModeFromMessage(
+            window.frameElement, window, event.data.styles);
+      }
+    });
+  }
+  window.parent.postMessage({
+    type: 'enter-frame-overlay-ugly-hack',
+    frame: window.frameElement.id,
+  }, '*');
+}
+
+
+// TODO(alanorozco): Remove ugly hack
+function leaveFrameFullOverlayModeUsingUglyHack() {
+  leaveFrameFullOverlayMode(window.frameElement, window);
 }
 
 
@@ -260,6 +312,7 @@ class AmpLightbox extends AMP.BaseElement {
     }
 
     if (this.isInMainDocument_()) {
+      enterFrameFullOverlayModeUsingUglyHack();
       return;
     }
 
@@ -273,6 +326,7 @@ class AmpLightbox extends AMP.BaseElement {
     }
 
     if (this.isInMainDocument_()) {
+      leaveFrameFullOverlayModeUsingUglyHack();
       return;
     }
 
