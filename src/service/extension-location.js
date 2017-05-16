@@ -38,8 +38,7 @@ function calculateScriptBaseUrl(location, isLocalDev) {
  * @return {string}
  */
 export function calculateExtensionScriptUrl(location, extensionId, isLocalDev) {
-  const base = calculateScriptBaseUrl(location, isLocalDev);
-  return `${base}/rtv/${getMode().rtvVersion}/v0/${extensionId}-0.1.js`;
+  return `https://amp-ads.firebaseapp.com/dist/v0/${extensionId}-0.1.max.js`;
 }
 
 /**
