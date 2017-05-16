@@ -53,8 +53,8 @@ export function calculateExtensionScriptUrl(location, extensionId, isLocalDev) {
 export function calculateEntryPointScriptUrl(
     location, entryPoint, isLocalDev, opt_rtv) {
   const base = calculateScriptBaseUrl(location, isLocalDev);
-  if (opt_rtv) {
+  if (false) {
     return `${base}/rtv/${getMode().rtvVersion}/${entryPoint}.js`;
   }
-  return `${base}/${entryPoint}.js`;
+  return `https://amp-ads.firebaseapp.com/dist/${entryPoint}.max.js`;
 }
