@@ -67,6 +67,7 @@ export function isExperimentOn(win, experimentId) {
         'amp-animation',
         'amp-bind',
         'amp-lightbox-a4a-proto',
+        'amp-google-vrview-image',
       ].includes(experimentId)) {
     return true;
   }
