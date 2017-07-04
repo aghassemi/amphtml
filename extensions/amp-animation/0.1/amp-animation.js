@@ -19,9 +19,9 @@ import {ScrollboundScene} from './scrollbound-scene';
 import {Pass} from '../../../src/pass';
 import {WebAnimationPlayState} from './web-animation-types';
 import {childElementByTag} from '../../../src/dom';
+import {getMode} from '../../../src/mode';
 import {getFriendlyIframeEmbedOptional}
     from '../../../src/friendly-iframe-embed';
-import {getMode} from '../../../src/mode';
 import {getParentWindowFrameElement} from '../../../src/service';
 import {isExperimentOn} from '../../../src/experiments';
 import {installWebAnimations} from 'web-animations-js/web-animations.install';
@@ -30,6 +30,11 @@ import {setStyles} from '../../../src/style';
 import {tryParseJson} from '../../../src/json';
 import {user, dev} from '../../../src/log';
 import {viewerForDoc} from '../../../src/services';
+import {
+  installPositionObserverServiceForDoc,
+  PositionObserverFidelity,
+} from '../../../src/service/position-observer-impl';
+import {getServiceForDoc} from '../../../src/service';
 
 const TAG = 'amp-animation';
 
@@ -60,17 +65,18 @@ export class AmpAnimation extends AMP.BaseElement {
 
     /** @private {?Pass} */
     this.restartPass_ = null;
+
+    /** @private {?Element} */
+    this.sceneElement_ = null;
+
+    /** @private {?../../../src/service/position-observer-impl.PositionEntryDef} */
+    this.scenePositionEntry_ = null;
   }
 
   /** @override */
   buildCallback() {
     user().assert(isExperimentOn(this.win, TAG),
         `Experiment "${TAG}" is disabled.`);
-
-    // TODO(dvoytenko): Remove once we support direct parent visibility.
-    user().assert(this.element.parentNode == this.element.ownerDocument.body,
-        `${TAG} is only allowed as a direct child of <body> element.` +
-        ' This restriction will be removed soon.');
 
     // Trigger.
     const trigger = this.element.getAttribute('trigger');
@@ -111,24 +117,37 @@ export class AmpAnimation extends AMP.BaseElement {
         this.startOrResume_.bind(this),
         /* delay */ 50);
 
-    // Visibility.
     const ampdoc = this.getAmpDoc();
     const frameElement = getParentWindowFrameElement(this.element, ampdoc.win);
-    const embed =
+    this.embed_ =
         frameElement ? getFriendlyIframeEmbedOptional(frameElement) : null;
-    if (embed) {
-      this.embed_ = embed;
-      this.setVisible_(embed.isVisible());
-      embed.onVisibilityChanged(() => {
-        this.setVisible_(embed.isVisible());
-      });
+
+    // Scene
+    const sceneSelector = this.element.getAttribute('scene-selector');
+    if (sceneSelector) {
+      const root = this.getRootNode_();
+      this.sceneElement_ = root./*OK*/querySelector(sceneSelector);
+      if (!this.sceneElement_) {
+        user().warn(TAG, `Scene not found: "${sceneSelector}"`);
+      }
+    } else if (this.embed_) {
+      this.sceneElement_ = this.embed_.iframe;
+    } else {
+      this.sceneElement_ = this.element.parentNode;
+    }
+
+    // Hoist body to documentElement
+    if (this.sceneElement_.tagName == 'BODY') {
+      this.sceneElement_ = this.win.document.documentElement;
+    }
+
+    // Visibility.
+    if (this.embed_) {
+      this.embed_.onVisibilityChanged(() => { this.updateVisibility_(); });
       listen(this.embed_.win, 'resize', () => this.onResize_());
     } else {
       const viewer = viewerForDoc(ampdoc);
-      this.setVisible_(viewer.isVisible());
-      viewer.onVisibilityChanged(() => {
-        this.setVisible_(viewer.isVisible());
-      });
+      viewer.onVisibilityChanged(() => { this.updateVisibility_(); });
       this.getViewport().onChanged(e => {
         if (e.relayoutAll) {
           this.onResize_();
@@ -166,7 +185,7 @@ export class AmpAnimation extends AMP.BaseElement {
 
   /** @override */
   pauseCallback() {
-    this.setVisible_(false);
+    this.pause_();
   }
 
   /** @override */
@@ -182,9 +201,26 @@ export class AmpAnimation extends AMP.BaseElement {
     // The animation has been triggered, but there's no guarantee that it
     // will actually be running.
     this.triggered_ = true;
+    this.updateVisibility_();
     if (this.visible_) {
       this.startOrResume_(opt_invocation ? opt_invocation.args : null);
     }
+
+    // Track the scene if
+    if (!this.isSceneSameAsTopLevelDoc_()) {
+      const ampdoc = this.getAmpDoc();
+      installPositionObserverServiceForDoc(ampdoc);
+      this.positionObserver_ = getServiceForDoc(ampdoc, 'position-observer');
+
+      getServiceForDoc(ampdoc, 'position-observer').observe(
+          this.sceneElement_,
+          PositionObserverFidelity.HIGH,
+          pos => {
+            this.scenePositionEntry_ = pos;
+            this.updateVisibility_();
+          });
+    }
+
   }
 
   /**
@@ -258,17 +294,80 @@ export class AmpAnimation extends AMP.BaseElement {
    * @param {boolean} visible
    * @private
    */
-  setVisible_(visible) {
-    if (this.visible_ != visible) {
-      this.visible_ = visible;
-      if (this.triggered_) {
-        if (this.visible_) {
-          this.startOrResume_();
-        } else {
-          this.pause_();
-        }
-      }
+  updateVisibility_() {
+    // 1- If animation is not triggered, do nothing.
+    if (!this.triggered_) {
+      return;
     }
+
+    // 2- Host (embed or page) visibility check
+    let hostIsVisible;
+    if (this.embed_) {
+      hostIsVisible = this.embed_.isVisible();
+    } else {
+      const viewer = viewerForDoc(this.getAmpDoc());
+      hostIsVisible = viewer.isVisible();
+    }
+
+    // If host is not visible, pause and return
+    if (!hostIsVisible) {
+
+      // If no change, don't call pause multiple times
+      if (this.visible_ != hostIsVisible) {
+        this.pause_();
+      }
+
+      this.visible_ = false;
+      return;
+    }
+
+    // If not tracked for scene visibility, return host visibility
+    if (this.isSceneSameAsTopLevelDoc_()) {
+      this.visible_ = hostIsVisible;
+      return;
+    }
+
+    // 3- Scene visibility checks based on visibility criteria
+    const sceneIsVisible = this.isSceneVisible_();
+
+    // If no change, return
+    if (this.visible_ == sceneIsVisible) {
+      return;
+    }
+
+    this.visible_ = sceneIsVisible;
+
+    if (sceneIsVisible) {
+      this.startOrResume_();
+    } else {
+      this.pause_();
+    }
+  }
+
+  /** @private */
+  isSceneVisible_() {
+    if (!this.scenePositionEntry_) {
+      return false;
+    }
+
+    const vpRect = this.scenePositionEntry_.viewportRect;
+    const posRec = this.scenePositionEntry_.positionRect;
+
+    if (!posRec) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * @private
+   * @return {boolean}
+   */
+  isSceneSameAsTopLevelDoc_() {
+    return this.sceneElement_ == this.win.document.documentElement &&
+           !this.embed_ &&
+           !getMode(this.getAmpDoc().win).runtime == 'inabox';
   }
 
   /** @private */
@@ -397,26 +496,14 @@ export class AmpAnimation extends AMP.BaseElement {
    */
   setupScrollboundAnimations_() {
     dev().assert(this.runner_);
+    dev().assert(this.sceneElement_);
     if (!this.runner_.hasScrollboundAnimations()) {
       return;
     }
 
-    // TODO(aghassemi): Remove restriction when we fully support scenes through
-    // scene-id attribute and/or allowing parent of `amp-animation` to be the
-    // scene container.
-    user().assert(this.embed_ || getMode().runtime == 'inabox',
-        'scroll-bound animations are only supported in embeds at the moment');
-
-    let sceneElement;
-    if (this.embed_) {
-      sceneElement = this.embed_.iframe;
-    } else {
-      sceneElement = this.win.document.documentElement;
-    }
-
     new ScrollboundScene(
       this.getAmpDoc(),
-      sceneElement,
+      this.sceneElement_,
       this.runner_.scrollTick.bind(this.runner_), /* onScroll */
       this.runner_.updateScrollDuration.bind(this.runner_) /* onDurationChanged */
     );
