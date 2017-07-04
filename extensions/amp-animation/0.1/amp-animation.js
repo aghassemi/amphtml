@@ -35,9 +35,11 @@ import {
   PositionObserverFidelity,
 } from '../../../src/service/position-observer-impl';
 import {getServiceForDoc} from '../../../src/service';
+import {map} from '../../../src/utils/object';
+import {parseCss} from './css-expr';
+import {rectIntersection} from '../../../src/layout-rect';
 
 const TAG = 'amp-animation';
-
 
 export class AmpAnimation extends AMP.BaseElement {
 
@@ -71,6 +73,15 @@ export class AmpAnimation extends AMP.BaseElement {
 
     /** @private {?../../../src/service/position-observer-impl.PositionEntryDef} */
     this.scenePositionEntry_ = null;
+
+    this.visibilityConditions_ = map({
+      startTop: parseCss('0%'),
+      startBottom: parseCss('0%'),
+      endTop: parseCss('0%'),
+      endBottom: parseCss('0%'),
+      marginTop: parseCss('0px'),
+      marginBottom: parseCss('0px'),
+    });
   }
 
   /** @override */
@@ -206,8 +217,9 @@ export class AmpAnimation extends AMP.BaseElement {
       this.startOrResume_(opt_invocation ? opt_invocation.args : null);
     }
 
-    // Track the scene if
+    // Parse visibility conditions and track the scene if not top level doc
     if (!this.isSceneSameAsTopLevelDoc_()) {
+      this.parseVisibilityConditions_();
       const ampdoc = this.getAmpDoc();
       installPositionObserverServiceForDoc(ampdoc);
       this.positionObserver_ = getServiceForDoc(ampdoc, 'position-observer');
@@ -290,6 +302,34 @@ export class AmpAnimation extends AMP.BaseElement {
     this.cancel_();
   }
 
+  parseVisibilityConditions_() {
+    this.parseVisibilityAttr_('scene-start-visibility-threshold', 'start');
+    this.parseVisibilityAttr_('scene-end-visibility-threshold', 'end');
+    this.parseVisibilityAttr_('scene-visibility-exclusion-margins', 'margin');
+  }
+
+  parseVisibilityAttr_(attrName, endOrStartOrMargin) {
+    const conds = this.visibilityConditions_;
+    const attrVal = this.element.getAttribute(attrName);
+    if (!attrVal) {
+      return;
+    }
+    const values = attrVal.split(' ');
+    user().assert(values.length == 1 || values.length == 2,
+        `Wrong value for ${attrName},
+        there can only be 1 or 2 space separated values`);
+
+    const val1 = parseCss(values[0]);
+    if (values.length == 1) {
+      conds[`${endOrStartOrMargin}Top`] = val1;
+      conds[`${endOrStartOrMargin}Bottom`] = val1;
+    } else {
+      const val2 = parseCss(values[1]);
+      conds[`${endOrStartOrMargin}Top`] = val1;
+      conds[`${endOrStartOrMargin}Bottom`] = val2;
+    }
+  }
+
   /**
    * @param {boolean} visible
    * @private
@@ -344,20 +384,53 @@ export class AmpAnimation extends AMP.BaseElement {
     }
   }
 
+
   /** @private */
   isSceneVisible_() {
     if (!this.scenePositionEntry_) {
       return false;
     }
 
-    const vpRect = this.scenePositionEntry_.viewportRect;
     const posRec = this.scenePositionEntry_.positionRect;
-
     if (!posRec) {
       return false;
     }
 
-    return true;
+    const vpRect = this.scenePositionEntry_.viewportRect;
+    const resolveMargin = cssNode => {
+      if (cssNode.units_ == 'vh') {
+        return (vpRect.height * cssNode.num_ / 100);
+      } else {
+        return cssNode.num_;
+      }
+    };
+    vpRect.top += resolveMargin(this.visibilityConditions_.marginTop);
+    vpRect.bottom -= resolveMargin(this.visibilityConditions_.marginBottom);
+    vpRect.height = vpRect.bottom - vpRect.top;
+
+    const scrollDirection = this.element.getResources().getScrollDirection();
+    const interRect = rectIntersection(posRec, vpRect);
+
+    if (!interRect) {
+      return false;
+    }
+
+    // 0 to 100
+    const ratio = (interRect.height / posRec.height) * 100;
+
+    if (scrollDirection == 1) {
+      if (this.visible_) {
+        return ratio > this.visibilityConditions_.endTop.num_;
+      } else {
+        return ratio > this.visibilityConditions_.startBottom.num_;
+      }
+    } else {
+      if (this.visible_) {
+        return ratio > this.visibilityConditions_.endBottom.num_;
+      } else {
+        return ratio > this.visibilityConditions_.startTop.num_;
+      }
+    }
   }
 
   /**

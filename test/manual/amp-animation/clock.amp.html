@@ -30,7 +30,7 @@
   </style>
 </head>
 <body>
-  <amp-animation scene-selector="#clock-scene-2" layout="nodisplay" trigger="visibility">
+  <!--<amp-animation scene-selector="#clock-scene-2" layout="nodisplay" trigger="visibility">
     <script type="application/json">
     {
       "ticker": "scroll",
@@ -47,7 +47,7 @@
       ]
     }
     </script>
-  </amp-animation>
+  </amp-animation>-->
   <button onclick="window.AMP.toggleExperiment('amp-animation', true);">Enable amp-animation experiment</button>
   <p>
     Sed pharetra semper fringilla. Nulla fringilla, neque eget varius suscipit, mi turpis congue odio, quis dignissim nisi nulla
@@ -69,7 +69,7 @@
   </p>
   <h2>Scrollbound - Clock Scene - Parent of amp-animation defines scene</h2>
   <div id="clock-scene-1" class="clock-scene">
-    <amp-animation layout="nodisplay" trigger="visibility">
+    <!--<amp-animation layout="nodisplay" trigger="visibility">
       <script type="application/json">
       {
         "ticker": "scroll",
@@ -86,7 +86,7 @@
         ]
       }
       </script>
-    </amp-animation>
+    </amp-animation>-->
 
     <amp-img layout="responsive" width=2 height=1.5 src="./assets/clock.jpg">
       <div class="clock-hand"></div>
@@ -119,8 +119,8 @@
     molestie nulla porttitor ac. Donec porta risus ut enim pellentesque, id placerat elit ornare.
   </p>
   <h2>Timebound - Clock Scene - Default visibility conditons</h2>
-  <div id="clock-scene-3" class="clock-scene">
-    <amp-animation layout="nodisplay" trigger="visibility">
+  <div id="clock-scene-3" class="clock-scene" >
+    <amp-animation layout="nodisplay" trigger="visibility" scene-visibility-exclusion-margins="30vh" scene-start-visibility-threshold="50%" scene-end-visibility-threshold="50%">
       <script type="application/json">
       {
         "fill": "both",
@@ -145,6 +145,15 @@
   </div>
   <!--End Clock Scene-->
   <p>
+    Sed pharetra semper fringilla. Nulla fringilla, neque eget varius suscipit, mi turpis congue odio, quis dignissim nisi nulla
+    at erat. Duis non nibh vel erat vehicula hendrerit eget vel velit. Donec congue augue magna, nec eleifend dui porttitor
+    sed. Cras orci quam, dignissim nec elementum ac, bibendum et purus. Ut elementum mi eget felis ultrices tempus. Maecenas
+    nec sodales ex. Phasellus ultrices, purus non egestas ullamcorper, felis lorem ultrices nibh, in tristique mauris justo
+    sed ante. Nunc commodo purus feugiat metus bibendum consequat. Duis finibus urna ut ligula auctor, sed vehicula ex aliquam.
+    Sed sed augue auctor, porta turpis ultrices, cursus diam. In venenatis aliquet porta. Sed volutpat fermentum quam, ac
+    molestie nulla porttitor ac. Donec porta risus ut enim pellentesque, id placerat elit ornare.
+  </p>
+    <p>
     Sed pharetra semper fringilla. Nulla fringilla, neque eget varius suscipit, mi turpis congue odio, quis dignissim nisi nulla
     at erat. Duis non nibh vel erat vehicula hendrerit eget vel velit. Donec congue augue magna, nec eleifend dui porttitor
     sed. Cras orci quam, dignissim nec elementum ac, bibendum et purus. Ut elementum mi eget felis ultrices tempus. Maecenas
