@@ -219,7 +219,7 @@ i-amphtml-sizer {
 /**
  * Makes elements visually invisible but still accessible to screen-readers.
  *
- * This Css has been carefully tested to ensure screen-readers can read and
+ * This Css has been carefully tested to ensure scr  een-readers can read and
  * activate (in case of links and buttons) the elements with this class. Please
  * use caution when changing anything, even seemingly safe ones. For example
  * changing width from 1 to 0 would prevent TalkBack from activating (clicking)
