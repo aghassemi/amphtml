@@ -1,0 +1,375 @@
+<!doctype html>
+<html ⚡>
+
+<head>
+  <meta charset="utf-8">
+  <title>Scroll-bound Animations in AMP</title>
+  <link rel="canonical" href="http://nonblocking.io/">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+  <script async src="https://cdn.ampproject.org/v0.js"></script>
+  <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
+  <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-network-fake-impl-0.1.js"></script>
+  <script async custom-element="amp-animation" src="https://cdn.ampproject.org/v0/amp-animation-0.1.js"></script>
+  <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+  <style amp-custom>
+    body {
+      font-family: Roboto, verdana, arial, sans-serif;
+    }
+
+    main {
+      padding: 0px 5px;
+    }
+
+    amp-img img {
+      object-fit: cover;
+    }
+
+    .marker {
+      position: absolute;
+      height: 1px;
+      width: 100%;
+    }
+
+    #img1 {
+      opacity: 0;
+    }
+
+    .clock-hand {
+      position: absolute;
+      width: 2vw;
+      height: 20vw;
+      top: 50%;
+      left: 50%;
+      z-index: 2;
+      background: #FAFAFA;
+      transform-origin: 50% 0%;
+      border-radius: 10px;
+      transform: rotate(-180deg)
+    }
+
+    #mapFixed {
+      position: fixed;
+      width: 100vw;
+      height: 30vh;
+      top: 0;
+      opacity: 0;
+      background: white;
+
+    }
+
+    #mapFixed img {
+      object-fit: contain;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <button onclick="window.AMP.toggleExperiment('amp-animation', true);">Enable amp-animation experiment</button>
+    <p>
+      Sed pharetra semper fringilla. Nulla fringilla, neque eget varius suscipit, mi turpis congue odio, quis dignissim nisi nulla
+      at erat. Duis non nibh vel erat vehicula hendrerit eget vel velit. Donec congue augue magna, nec eleifend dui porttitor
+      sed. Cras orci quam, dignissim nec elementum ac, bibendum et purus. Ut elementum mi eget felis ultrices tempus. Maecenas
+      nec sodales ex. Phasellus ultrices, purus non egestas ullamcorper, felis lorem ultrices nibh, in tristique mauris justo
+      sed ante. Nunc commodo purus feugiat metus bibendum consequat. Duis finibus urna ut ligula auctor, sed vehicula ex
+      aliquam. Sed sed augue auctor, porta turpis ultrices, cursus diam. In venenatis aliquet porta. Sed volutpat fermentum
+      quam, ac molestie nulla porttitor ac. Donec porta risus ut enim pellentesque, id placerat elit ornare.
+    </p>
+    <p>
+      Sed pharetra semper fringilla. Nulla fringilla, neque eget varius suscipit, mi turpis congue odio, quis dignissim nisi nulla
+      at erat. Duis non nibh vel erat vehicula hendrerit eget vel velit. Donec congue augue magna, nec eleifend dui porttitor
+      sed. Cras orci quam, dignissim nec elementum ac, bibendum et purus. Ut elementum mi eget felis ultrices tempus. Maecenas
+      nec sodales ex. Phasellus ultrices, purus non egestas ullamcorper, felis lorem ultrices nibh, in tristique mauris justo
+      sed ante. Nunc commodo purus feugiat metus bibendum consequat. Duis finibus urna ut ligula auctor, sed vehicula ex
+      aliquam. Sed sed augue auctor, porta turpis ultrices, cursus diam. In venenatis aliquet porta. Sed volutpat fermentum
+      quam, ac molestie nulla porttitor ac. Donec porta risus ut enim pellentesque, id placerat elit ornare.
+    </p>
+    <h2>Scroll</h2>
+    <div id="clock-scene-1" class="clock-scene">
+      <amp-animation layout="nodisplay" trigger="visibility">
+        <script type="application/json">
+          {
+        "ticker": "scroll",
+        "fill": "both",
+        "direction": "alternate",
+        "animations": [
+          {
+            "selector": "#clock-scene-1 .clock-hand",
+            "keyframes": [
+              { "transform": "rotate(-180deg)" },
+              { "transform": "rotate(180deg)" }
+            ]
+          }
+        ]
+      }
+        </script>
+      </amp-animation>
+
+      <amp-img layout="responsive" width=2 height=1.5 src="./assets/clock.jpg">
+        <div class="clock-hand"></div>
+      </amp-img>
+    </div>
+    <!--End Clock Scene-->
+    <p>
+      Sed pharetra semper fringilla. Nulla fringilla, neque eget varius suscipit, mi turpis congue odio, quis dignissim nisi nulla
+      at erat. Duis non nibh vel erat vehicula hendrerit eget vel velit. Donec congue augue magna, nec eleifend dui porttitor
+      sed. Cras orci quam, dignissim nec elementum ac, bibendum et purus. Ut elementum mi eget felis ultrices tempus. Maecenas
+      nec sodales ex. Phasellus ultrices, purus non egestas ullamcorper, felis lorem ultrices nibh, in tristique mauris justo
+      sed ante. Nunc commodo purus feugiat metus bibendum consequat. Duis finibus urna ut ligula auctor, sed vehicula ex
+      aliquam. Sed sed augue auctor, porta turpis ultrices, cursus diam. In venenatis aliquet porta. Sed volutpat fermentum
+      quam, ac molestie nulla porttitor ac. Donec porta risus ut enim pellentesque, id placerat elit ornare.
+    </p>
+    <h2>Time</h2>
+    <h4>Start/End when 50% visible</h4>
+    <div id="clock-scene-2" class="clock-scene">
+      <amp-animation layout="nodisplay" trigger="visibility" scene-start-visibility-threshold="50%" scene-end-visibility-threshold="50%">
+        <script type="application/json">
+          {
+        "ticker": "time",
+        "fill": "both",
+        "duration": "6s",
+        "iterations": "infinity",
+        "animations": [
+          {
+            "selector": "#clock-scene-2 .clock-hand",
+            "keyframes": [
+              { "transform": "rotate(-180deg)" },
+              { "transform": "rotate(180deg)" }
+            ]
+          }
+        ]
+      }
+        </script>
+      </amp-animation>
+      <amp-img layout="responsive" width=2 height=1.5 src="./assets/clock.jpg">
+        <div class="clock-hand"></div>
+      </amp-img>
+    </div>
+    <!--End Clock Scene-->
+    <p>
+      Sed pharetra semper fringilla. Nulla fringilla, neque eget varius suscipit, mi turpis congue odio, quis dignissim nisi nulla
+      at erat. Duis non nibh vel erat vehicula hendrerit eget vel velit. Donec congue augue magna, nec eleifend dui porttitor
+      sed. Cras orci quam, dignissim nec elementum ac, bibendum et purus. Ut elementum mi eget felis ultrices tempus. Maecenas
+      nec sodales ex. Phasellus ultrices, purus non egestas ullamcorper, felis lorem ultrices nibh, in tristique mauris justo
+      sed ante. Nunc commodo purus feugiat metus bibendum consequat. Duis finibus urna ut ligula auctor, sed vehicula ex
+      aliquam. Sed sed augue auctor, porta turpis ultrices, cursus diam. In venenatis aliquet porta. Sed volutpat fermentum
+      quam, ac molestie nulla porttitor ac. Donec porta risus ut enim pellentesque, id placerat elit ornare.
+    </p>
+
+    <h2>Time</h2>
+    <h4>Only play when fully visible within 50px margin of edges</h4>
+    <div id="clock-scene-3" class="clock-scene">
+      <amp-animation layout="nodisplay" trigger="visibility" scene-start-visibility-threshold="99.9%" scene-end-visibility-threshold="99.9%"
+        scene-visibility-exclusion-margins="50px">
+        <script type="application/json">
+          {
+        "ticker": "time",
+        "fill": "both",
+        "duration": "6s",
+        "iterations": "infinity",
+        "animations": [
+          {
+            "selector": "#clock-scene-3 .clock-hand",
+            "keyframes": [
+              { "transform": "rotate(-180deg)" },
+              { "transform": "rotate(180deg)" }
+            ]
+          }
+        ]
+      }
+        </script>
+      </amp-animation>
+      <amp-img layout="responsive" width=2 height=1.5 src="./assets/clock.jpg">
+        <div class="clock-hand"></div>
+      </amp-img>
+    </div>
+    <!--End Clock Scene-->
+    <p>
+      Sed pharetra semper fringilla. Nulla fringilla, neque eget varius suscipit, mi turpis congue odio, quis dignissim nisi nulla
+      at erat. Duis non nibh vel erat vehicula hendrerit eget vel velit. Donec congue augue magna, nec eleifend dui porttitor
+      sed. Cras orci quam, dignissim nec elementum ac, bibendum et purus. Ut elementum mi eget felis ultrices tempus. Maecenas
+      nec sodales ex. Phasellus ultrices, purus non egestas ullamcorper, felis lorem ultrices nibh, in tristique mauris justo
+      sed ante. Nunc commodo purus feugiat metus bibendum consequat. Duis finibus urna ut ligula auctor, sed vehicula ex
+      aliquam. Sed sed augue auctor, porta turpis ultrices, cursus diam. In venenatis aliquet porta. Sed volutpat fermentum
+      quam, ac molestie nulla porttitor ac. Donec porta risus ut enim pellentesque, id placerat elit ornare.
+    </p>
+    <h2>Fade in Image</h2>
+      <div class="marker">
+        <amp-animation layout="nodisplay" trigger="visibility">
+          <script type="application/json">
+            {
+          "ticker": "scroll",
+          "fill": "both",
+          "direction": "alternate",
+          "animations": [
+            {
+              "selector": "#img1",
+              "keyframes": [
+                { "opacity": "0" },
+                { "opacity": "1", "offset": "0.5" },
+                { "opacity": "1", "offset": "1" }
+              ]
+            }
+          ]
+        }
+          </script>
+        </amp-animation>
+      </div>
+      <amp-img id="img1"
+        layout="responsive" width="1080" height="720"
+        src="https://lh3.googleusercontent.com/5rcQ32ml8E5ONp9f9-Rf78IofLb9QjS5_0mqsY1zEFc=w400-h300-no-n">
+      </amp-img>
+    <p>
+      Sed pharetra semper fringilla. Nulla fringilla, neque eget varius suscipit, mi turpis congue odio, quis dignissim nisi nulla
+      at erat. Duis non nibh vel erat vehicula hendrerit eget vel velit. Donec congue augue magna, nec eleifend dui porttitor
+      sed. Cras orci quam, dignissim nec elementum ac, bibendum et purus. Ut elementum mi eget felis ultrices tempus. Maecenas
+      nec sodales ex. Phasellus ultrices, purus non egestas ullamcorper, felis lorem ultrices nibh, in tristique mauris justo
+      sed ante. Nunc commodo purus feugiat metus bibendum consequat. Duis finibus urna ut ligula auctor, sed vehicula ex
+      aliquam. Sed sed augue auctor, porta turpis ultrices, cursus diam. In venenatis aliquet porta. Sed volutpat fermentum
+      quam, ac molestie nulla porttitor ac. Donec porta risus ut enim pellentesque, id placerat elit ornare.
+    </p>
+
+    <div class="marker">
+      <amp-animation layout="nodisplay" trigger="visibility" scene-visibility-exclusion-margins="-10000px 60vh">
+        <script type="application/json">
+          {
+        "ticker": "time",
+        "duration": "300ms",
+        "fill": "both",
+        "direction": "alternate",
+        "animations": [
+          {
+            "selector": "#mapFixed",
+            "keyframes": [
+              { "opacity": "0", "offset":0 },
+              { "opacity": "1", "offset": 1}
+            ]
+          }
+        ]
+      }
+      </script>
+      </amp-animation>
+    </div>
+    <h2>Map</h2>
+    <amp-img id="mapFixed"
+      layout="responsive" width="1600" height="1135"
+      src="http://irlen.com/wp-content/uploads/2015/09/world-map-large.png">
+    </amp-img>
+
+    <p>
+      Sed pharetra semper fringilla. Nulla fringilla, neque eget varius suscipit, mi turpis congue odio, quis dignissim nisi nulla
+      at erat. Duis non nibh vel erat vehicula hendrerit eget vel velit. Donec congue augue magna, nec eleifend dui porttitor
+      sed. Cras orci quam, dignissim nec elementum ac, bibendum et purus. Ut elementum mi eget felis ultrices tempus. Maecenas
+      nec sodales ex. Phasellus ultrices, purus non egestas ullamcorper, felis lorem ultrices nibh, in tristique mauris justo
+      sed ante. Nunc commodo purus feugiat metus bibendum consequat. Duis finibus urna ut ligula auctor, sed vehicula ex
+      aliquam. Sed sed augue auctor, porta turpis ultrices, cursus diam. In venenatis aliquet porta. Sed volutpat fermentum
+      quam, ac molestie nulla porttitor ac. Donec porta risus ut enim pellentesque, id placerat elit ornare.
+    </p>
+    <div class="marker">
+      <amp-animation layout="nodisplay" trigger="visibility" scene-visibility-exclusion-margins="-10000px 40vh">
+        <script type="application/json">
+          {
+        "ticker": "time",
+        "duration": "800ms",
+        "fill": "both",
+        "direction": "alternate",
+        "animations": [
+          {
+            "selector": "#mapFixed img",
+            "keyframes": [
+              { "transform": "scale(1)", "offset": "0" },
+              { "transform": "scale(5) translateX(20%)", "offset" : "1" }
+            ]
+          }
+        ]
+      }
+      </script>
+      </amp-animation>
+    </div>
+    <h3> USA </h3>
+
+    <p>
+      Sed pharetra semper fringilla. Nulla fringilla, neque eget varius suscipit, mi turpis congue odio, quis dignissim nisi nulla
+      at erat. Duis non nibh vel erat vehicula hendrerit eget vel velit. Donec congue augue magna, nec eleifend dui porttitor
+      sed. Cras orci quam, dignissim nec elementum ac, bibendum et purus. Ut elementum mi eget felis ultrices tempus. Maecenas
+      nec sodales ex. Phasellus ultrices, purus non egestas ullamcorper, felis lorem ultrices nibh, in tristique mauris justo
+      sed ante. Nunc commodo purus feugiat metus bibendum consequat. Duis finibus urna ut ligula auctor, sed vehicula ex
+      aliquam. Sed sed augue auctor, porta turpis ultrices, cursus diam. In venenatis aliquet porta. Sed volutpat fermentum
+      quam, ac molestie nulla porttitor ac. Donec porta risus ut enim pellentesque, id placerat elit ornare.
+    </p>
+
+      <div class="marker">
+      <amp-animation layout="nodisplay" trigger="visibility" scene-visibility-exclusion-margins="-10000px 40vh">
+        <script type="application/json">
+          {
+          "ticker": "time",
+          "duration": "1500ms",
+          "fill": "both",
+          "direction": "alternate",
+          "animations": [
+            {
+              "selector": "#mapFixed img",
+              "keyframes": [
+                { "transform": "scale(5) translateX(20%) translateY(0)", "offset": "0" },
+                { "transform": "scale(3) translateX(-5%) translateY(-2.5%)", "offset": "0.5" },
+                { "transform": "scale(7) translateX(-9%) translateY(-5%)", "offset" : "1" }
+              ]
+            }
+          ]
+        }
+        </script>
+      </amp-animation>
+    </div>
+    <h3> IRAN </h3>
+    <p>
+      Sed pharetra semper fringilla. Nulla fringilla, neque eget varius suscipit, mi turpis congue odio, quis dignissim nisi nulla
+      at erat. Duis non nibh vel erat vehicula hendrerit eget vel velit. Donec congue augue magna, nec eleifend dui porttitor
+      sed. Cras orci quam, dignissim nec elementum ac, bibendum et purus. Ut elementum mi eget felis ultrices tempus. Maecenas
+      nec sodales ex. Phasellus ultrices, purus non egestas ullamcorper, felis lorem ultrices nibh, in tristique mauris justo
+      sed ante. Nunc commodo purus feugiat metus bibendum consequat. Duis finibus urna ut ligula auctor, sed vehicula ex
+      aliquam. Sed sed augue auctor, porta turpis ultrices, cursus diam. In venenatis aliquet porta. Sed volutpat fermentum
+      quam, ac molestie nulla porttitor ac. Donec porta risus ut enim pellentesque, id placerat elit ornare.
+    </p>
+    <div class="marker">
+      <amp-animation layout="nodisplay" trigger="visibility" scene-visibility-exclusion-margins="-10000px 60vh">
+        <script type="application/json">
+          {
+          "ticker": "time",
+          "duration": "300ms",
+          "fill": "both",
+          "direction": "alternate",
+          "animations": [
+            {
+              "selector": "#mapFixed",
+              "keyframes": [
+                { "opacity": "0", "offset" : "1" }
+              ]
+            }
+          ]
+        }
+        </script>
+      </amp-animation>
+   </div>
+    <p>
+      Sed pharetra semper fringilla. Nulla fringilla, neque eget varius suscipit, mi turpis congue odio, quis dignissim nisi nulla
+      at erat. Duis non nibh vel erat vehicula hendrerit eget vel velit. Donec congue augue magna, nec eleifend dui porttitor
+      sed. Cras orci quam, dignissim nec elementum ac, bibendum et purus. Ut elementum mi eget felis ultrices tempus. Maecenas
+      nec sodales ex. Phasellus ultrices, purus non egestas ullamcorper, felis lorem ultrices nibh, in tristique mauris justo
+      sed ante. Nunc commodo purus feugiat metus bibendum consequat. Duis finibus urna ut ligula auctor, sed vehicula ex
+      aliquam. Sed sed augue auctor, porta turpis ultrices, cursus diam. In venenatis aliquet porta. Sed volutpat fermentum
+      quam, ac molestie nulla porttitor ac. Donec porta risus ut enim pellentesque, id placerat elit ornare.
+    </p>
+
+
+    <p>
+      Sed pharetra semper fringilla. Nulla fringilla, neque eget varius suscipit, mi turpis congue odio, quis dignissim nisi nulla
+      at erat. Duis non nibh vel erat vehicula hendrerit eget vel velit. Donec congue augue magna, nec eleifend dui porttitor
+      sed. Cras orci quam, dignissim nec elementum ac, bibendum et purus. Ut elementum mi eget felis ultrices tempus. Maecenas
+      nec sodales ex. Phasellus ultrices, purus non egestas ullamcorper, felis lorem ultrices nibh, in tristique mauris justo
+      sed ante. Nunc commodo purus feugiat metus bibendum consequat. Duis finibus urna ut ligula auctor, sed vehicula ex
+      aliquam. Sed sed augue auctor, porta turpis ultrices, cursus diam. In venenatis aliquet porta. Sed volutpat fermentum
+      quam, ac molestie nulla porttitor ac. Donec porta risus ut enim pellentesque, id placerat elit ornare.
+    </p>
+
+    <main>
+</body>
