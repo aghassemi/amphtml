@@ -463,7 +463,6 @@ describes.repeated('', {
     });
 
     it('should only use the more recent verify request', () => {
-      toggleExperiment(env.win, FORM_VERIFY_EXPERIMENT, true);
       const formPromise = getAmpForm(getVerificationForm(
           env.win.document, asyncVerifyConfig));
 
