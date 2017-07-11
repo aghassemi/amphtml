@@ -25,7 +25,6 @@ import {
 } from '../form-validators';
 import {
   CONFIG_KEY,
-  FORM_VERIFY_EXPERIMENT,
 } from '../form-verifiers';
 import * as sinon from 'sinon';
 import '../../../amp-mustache/0.1/amp-mustache';
@@ -433,7 +432,6 @@ describes.repeated('', {
     });
 
     it('should allow verifying elements with a presubmit request', () => {
-      toggleExperiment(env.win, FORM_VERIFY_EXPERIMENT, true);
       const formPromise = getAmpForm(getVerificationForm(
           env.win.document));
       const fetchRejectPromise = Promise.reject({
