@@ -75,6 +75,9 @@ export class AmpAnimation extends AMP.BaseElement {
     /** @private {?../../../src/service/position-observer-impl.PositionEntryDef} */
     this.scenePositionEntry_ = null;
 
+    /** @private {boolean} */
+    this.isScrollbound_ = false;
+
     this.visibilityConditions_ = map({
       startTop: parseCss('0%'),
       startBottom: parseCss('0%'),
@@ -82,6 +85,7 @@ export class AmpAnimation extends AMP.BaseElement {
       endBottom: parseCss('0%'),
       marginTop: parseCss('0px'),
       marginBottom: parseCss('0px'),
+      neverEnd: false,
     });
   }
 
@@ -106,6 +110,8 @@ export class AmpAnimation extends AMP.BaseElement {
     this.configJson_ = tryParseJson(scriptElement.textContent, error => {
       throw user().createError('failed to parse animation script', error);
     });
+
+    this.isScrollbound_ = this.element.getAttribute('ticker') == 'scroll';
 
     if (this.triggerOnVisibility_) {
       // Make the element minimally displayed to make sure that `layoutCallback`
@@ -305,7 +311,11 @@ export class AmpAnimation extends AMP.BaseElement {
 
   parseVisibilityConditions_() {
     this.parseVisibilityAttr_('scene-start-visibility-threshold', 'start');
-    this.parseVisibilityAttr_('scene-end-visibility-threshold', 'end');
+    if (this.element.getAttribute('scene-end-visibility-threshold') == 'never') {
+      this.visibilityConditions_.neverEnd = true;
+    } else {
+      this.parseVisibilityAttr_('scene-end-visibility-threshold', 'end');
+    }
     this.parseVisibilityAttr_('scene-visibility-exclusion-margins', 'margin');
   }
 
@@ -405,33 +415,84 @@ export class AmpAnimation extends AMP.BaseElement {
         return cssNode.num_;
       }
     };
-    vpRect.top += resolveMargin(this.visibilityConditions_.marginTop);
-    vpRect.bottom -= resolveMargin(this.visibilityConditions_.marginBottom);
+
+    const marginTop = this.visibilityConditions_.marginTop;
+    const marginBottom = this.visibilityConditions_.marginBottom;
+
+    vpRect.top += resolveMargin(marginTop);
+    vpRect.bottom -= resolveMargin(marginBottom);
+
     vpRect.height = vpRect.bottom - vpRect.top;
 
-    const scrollDirection = this.element.getResources().getScrollDirection();
     const interRect = rectIntersection(posRec, vpRect);
+    let offset;
+    if (this.isScrollbound_ && this.runner_) {
+      // scroll duration
+
+      if (this.delta >= 0) {
+        offset = (posRec.height * (100 - this.visibilityConditions_.endTop.num_) / 100) -
+        (posRec.height * (this.visibilityConditions_.startBottom.num_ / 100));
+      } else {
+        offset = (posRec.height * (100 - this.visibilityConditions_.endBottom.num_) / 100) -
+        (posRec.height * (this.visibilityConditions_.startTop.num_ / 100));
+      }
+      const scrollDuration = vpRect.height + offset;
+
+      if (scrollDuration != this.scrollDuration_) {
+        this.runner_.updateScrollDuration(scrollDuration);
+        this.scrollDuration_ = scrollDuration;
+      }
+    }
 
     if (!interRect) {
       return false;
     }
 
+    this.delta = this.delta || 0;
+    this.delta = this.delta + this.prevTop_ - posRec.top;
+
     // 0 to 100
     const ratio = (interRect.height / posRec.height) * 100;
+    let matched = false;
 
-    if (scrollDirection == 1) {
+    if (this.delta >= 0) {
       if (this.visible_) {
-        return ratio > this.visibilityConditions_.endTop.num_;
+        matched = ratio >= this.visibilityConditions_.endTop.num_;
       } else {
-        return ratio > this.visibilityConditions_.startBottom.num_;
+        matched = ratio >= this.visibilityConditions_.startBottom.num_;
       }
     } else {
       if (this.visible_) {
-        return ratio > this.visibilityConditions_.endBottom.num_;
+        matched = ratio >= this.visibilityConditions_.endBottom.num_;
       } else {
-        return ratio > this.visibilityConditions_.startTop.num_;
+        matched = ratio >= this.visibilityConditions_.startTop.num_;
       }
     }
+
+    if (this.scrollDuration_ && this.runner_) {
+      if (matched) {
+        let x;
+        if (this.delta >= 0) {
+          x = this.scrollDuration_ - posRec.top - (posRec.height * (100 - this.visibilityConditions_.endTop.num_) / 100);
+        } else {
+          x = this.scrollDuration_ - (posRec.bottom - (posRec.height * (this.visibilityConditions_.startTop.num_) / 100));
+        }
+        this.runner_.scrollTick(x);
+
+      } else {
+        if (this.delta >= 0) {
+          this.runner_.scrollTick(this.scrollDuration_);
+        } else {
+          this.runner_.scrollTick(0);
+        }
+      }
+    }
+
+    if (!matched) {
+      this.delta = 0;
+    }
+    this.prevTop_ = posRec.top;
+    return matched;
   }
 
   /**
@@ -481,8 +542,8 @@ export class AmpAnimation extends AMP.BaseElement {
     return this.createRunner_(opt_args).then(runner => {
       this.runner_ = runner;
       this.runner_.onPlayStateChanged(this.playStateChanged_.bind(this));
-      this.setupScrollboundAnimations_();
       this.runner_.start();
+      this.updateVisibility_();
     });
   }
 
@@ -532,7 +593,7 @@ export class AmpAnimation extends AMP.BaseElement {
           baseUrl,
           this.getVsync(),
           this.element.getResources());
-      return builder.createRunner(configJson, args);
+      return builder.createRunner(configJson, this.isScrollbound_, args);
     });
   }
 
@@ -548,7 +609,7 @@ export class AmpAnimation extends AMP.BaseElement {
 
   /** @private */
   pause_() {
-    if (this.runner_) {
+    if (this.runner_ && !this.visibilityConditions_.neverEnd) {
       this.runner_.pause();
     }
   }
@@ -561,24 +622,6 @@ export class AmpAnimation extends AMP.BaseElement {
     if (playState == WebAnimationPlayState.FINISHED) {
       this.finish_();
     }
-  }
-
-  /**
-   * @private
-   */
-  setupScrollboundAnimations_() {
-    dev().assert(this.runner_);
-    dev().assert(this.sceneElement_);
-    if (!this.runner_.hasScrollboundAnimations()) {
-      return;
-    }
-
-    new ScrollboundScene(
-      this.getAmpDoc(),
-      this.sceneElement_,
-      this.runner_.scrollTick.bind(this.runner_), /* onScroll */
-      this.runner_.updateScrollDuration.bind(this.runner_) /* onDurationChanged */
-    );
   }
 }
 

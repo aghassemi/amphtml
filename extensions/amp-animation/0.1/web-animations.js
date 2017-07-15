@@ -69,15 +69,6 @@ let animIdCounter = 0;
 export let InternalWebAnimationRequestDef;
 
 /**
- * @private
- * @enum {string}
- */
-const Tickers = {
-  SCROLL: 'scroll',
-  TIME: 'time',
-};
-
-/**
  * @const {!Object<string, boolean>}
  */
 const SERVICE_PROPS = {
@@ -92,13 +83,14 @@ export class WebAnimationRunner {
   /**
    * @param {!Array<!InternalWebAnimationRequestDef>} requests
    */
-  constructor(requests) {
+  constructor(requests, isScrollbound) {
     /** @const @private */
     this.requests_ = requests;
 
     /** @private {?Array<!Animation>} */
     this.players_ = null;
 
+    this.isScrollbound_ = isScrollbound;
 
     /** @private {number} */
     this.runningCount_ = 0;
@@ -140,7 +132,7 @@ export class WebAnimationRunner {
 
       // Create the player.
       let player;
-      if (request.timing.ticker == Tickers.SCROLL) {
+      if (this.isScrollbound_) {
         player = new ScrollboundPlayer(request);
       } else {
         player = request.target.animate(request.keyframes, request.timing);
@@ -245,29 +237,16 @@ export class WebAnimationRunner {
   /**
    */
   updateScrollDuration(newDuration) {
+    dev().assert(this.isScrollbound_);
+
     this.requests_.forEach(request => {
-      if (request.timing.ticker == Tickers.SCROLL) {
-        request.timing.duration = newDuration;
-      }
+      request.timing.duration = newDuration;
     });
 
     this.players_.forEach(player => {
-      if (player instanceof ScrollboundPlayer) {
-        player.onScrollDurationChanged();
-      }
+      dev().assert(player instanceof ScrollboundPlayer);
+      player.onScrollDurationChanged();
     });
-  }
-
-  /**
-   */
-  hasScrollboundAnimations() {
-    for (let i = 0; i < this.requests_.length; i++) {
-      if (this.requests_[i].timing.ticker == Tickers.SCROLL) {
-        return true;
-      }
-    }
-
-    return false;
   }
 
   /**
@@ -386,13 +365,13 @@ export class Builder {
    * @param {?WebAnimationDef=} opt_args
    * @return {!Promise<!WebAnimationRunner>}
    */
-  createRunner(spec, opt_args) {
+  createRunner(spec, isScrollbound, opt_args) {
     return this.resolveRequests([], spec, opt_args).then(requests => {
       if (getMode().localDev || getMode().development) {
         user().fine(TAG, 'Animation: ', requests);
       }
       return Promise.all(this.loaders_).then(() => {
-        return new WebAnimationRunner(requests);
+        return new WebAnimationRunner(requests, isScrollbound);
       });
     });
   }
@@ -473,7 +452,6 @@ export class MeasureScanner extends Scanner {
 
     /** @private {!WebAnimationTimingDef} */
     this.timing_ = timing || {
-      ticker: Tickers.TIME,
       duration: 0,
       delay: 0,
       endDelay: 0,
@@ -857,10 +835,6 @@ export class MeasureScanner extends Scanner {
     const fill = /** @type {!WebAnimationTimingFill} */
         (this.css_.resolveIdent(newTiming.fill, prevTiming.fill));
 
-    // Other.
-    const ticker = newTiming.ticker != null ?
-        newTiming.ticker : prevTiming.ticker;
-
     // Validate.
     this.validateTime_(duration, newTiming.duration, 'duration');
     this.validateTime_(delay, newTiming.delay, 'delay', /* negative */ true);
@@ -883,7 +857,6 @@ export class MeasureScanner extends Scanner {
       easing,
       direction,
       fill,
-      ticker,
     };
   }
 
