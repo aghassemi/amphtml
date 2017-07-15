@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import {ampdocServiceFor} from '../../src/ampdoc';
 import {
+  ampdocServiceFor,
+  cryptoFor,
   extensionsFor,
   timerFor,
   viewerForDoc,
@@ -27,8 +28,8 @@ import {
   isOptedOutOfCid,
 } from '../../src/service/cid-impl';
 import {installCryptoService, Crypto} from '../../src/service/crypto-impl';
-import {cryptoFor} from '../../src/crypto';
 import {installDocService} from '../../src/service/ampdoc-impl';
+import {installDocumentStateService} from '../../src/service/document-state';
 import {parseUrl} from '../../src/url';
 import {installPlatformService} from '../../src/service/platform-impl';
 import {installViewerServiceForDoc} from '../../src/service/viewer-impl';
@@ -110,6 +111,7 @@ describe('cid', () => {
     };
     fakeWin.document.defaultView = fakeWin;
     installDocService(fakeWin, /* isSingleDoc */ true);
+    installDocumentStateService(fakeWin);
     ampdoc = ampdocServiceFor(fakeWin).getAmpDoc();
     installTimerService(fakeWin);
     installPlatformService(fakeWin);

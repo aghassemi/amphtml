@@ -18,7 +18,7 @@ import {BaseElement} from './base-element';
 import {BaseTemplate, registerExtendedTemplate} from './service/template-impl';
 import {CommonSignals} from './common-signals';
 import {
-  ShadowDomWriter,
+  createShadowDomWriter,
   createShadowRoot,
   importShadowBody,
   installStylesForShadowRoot,
@@ -35,7 +35,7 @@ import {
   registerExtension,
   stubLegacyElements,
 } from './service/extensions-impl';
-import {ampdocServiceFor} from './ampdoc';
+import {ampdocServiceFor, platformFor} from './services';
 import {startupChunk} from './chunk';
 import {cssText} from '../build/css';
 import {dev, user, initLogConstructor, setReportError} from './log';
@@ -54,6 +54,7 @@ import {installActionServiceForDoc} from './service/action-impl';
 import {installCidService} from './service/cid-impl';
 import {installCryptoService} from './service/crypto-impl';
 import {installDocumentInfoServiceForDoc} from './service/document-info-impl';
+import {installDocumentStateService} from './service/document-state';
 import {installGlobalClickListenerForDoc} from './service/document-click';
 import {installGlobalSubmitListenerForDoc} from './document-submit';
 import {extensionsFor} from './services';
@@ -83,7 +84,6 @@ import {
   toggleExperiment,
 } from './experiments';
 import {parseUrl} from './url';
-import {platformFor} from './services';
 import {registerElement} from './custom-element';
 import {registerExtendedElement} from './extended-element';
 import {resourcesForDoc} from './services';
@@ -110,12 +110,13 @@ const elementsForTesting = {};
  */
 export function installRuntimeServices(global) {
   installCryptoService(global);
+  installBatchedXhrService(global);
+  installDocumentStateService(global);
   installPlatformService(global);
+  installTemplatesService(global);
   installTimerService(global);
   installVsyncService(global);
   installXhrService(global);
-  installBatchedXhrService(global);
-  installTemplatesService(global);
 }
 
 
@@ -761,7 +762,7 @@ class MultidocManager {
         (amp, shadowRoot, ampdoc) => {
           // Start streaming.
           let renderStarted = false;
-          const writer = new ShadowDomWriter(this.win);
+          const writer = createShadowDomWriter(this.win);
           amp.writer = writer;
           writer.onBody(doc => {
             // Install extensions.

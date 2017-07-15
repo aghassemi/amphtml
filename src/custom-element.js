@@ -21,10 +21,8 @@ import {Layout, getLayoutClass, getLengthNumeral, getLengthUnits,
     hasNaturalDimensions} from './layout';
 import {ElementStub, stubbedElements} from './element-stub';
 import {Signals} from './utils/signals';
-import {ampdocServiceFor} from './ampdoc';
 import {createLoaderElement} from '../src/loader';
 import {dev, rethrowAsync, user} from './log';
-import {documentStateFor} from './service/document-state';
 import {
   getIntersectionChangeEntry,
 } from '../src/intersection-observer-polyfill';
@@ -32,8 +30,10 @@ import {getMode} from './mode';
 import {parseSizeList} from './size-list';
 import {reportError} from './error';
 import {
-  resourcesForDoc,
+  ampdocServiceFor,
+  documentStateFor,
   performanceForOrNull,
+  resourcesForDoc,
   timerFor,
   vsyncFor,
 } from './services';
@@ -1619,7 +1619,7 @@ function createBaseCustomElementClass(win) {
       }
       // This implementation is notably less efficient then placeholder toggling.
       // The reasons for this are: (a) "not supported" is the state of the whole
-      // element, (b) some realyout is expected and (c) fallback condition would
+      // element, (b) some relayout is expected and (c) fallback condition would
       // be rare.
       this.classList.toggle('amp-notsupported', show);
       if (show == true) {

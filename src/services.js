@@ -33,22 +33,24 @@ import {
 /**
  * Returns a promise for the Access service.
  * @param {!Node|!./service/ampdoc-impl.AmpDoc} nodeOrDoc
- * @return {!Promise<!AccessService>}
+ * @return {!Promise<!../extensions/amp-access/0.1/amp-access.AccessService>}
  */
 export function accessServiceForDoc(nodeOrDoc) {
-  return /** @type {!Promise<!AccessService>} */ (
-      getElementServiceForDoc(nodeOrDoc, 'access', 'amp-access'));
+  return (/** @type {!Promise<
+      !../extensions/amp-access/0.1/amp-access.AccessService>} */ (
+      getElementServiceForDoc(nodeOrDoc, 'access', 'amp-access')));
 }
 
 /**
  * Returns a promise for the Access service or a promise for null if the service
  * is not available on the current page.
  * @param {!Node|!./service/ampdoc-impl.AmpDoc} nodeOrDoc
- * @return {!Promise<?AccessService>}
+ * @return {!Promise<?../extensions/amp-access/0.1/amp-access.AccessService>}
  */
 export function accessServiceForDocOrNull(nodeOrDoc) {
-  return /** @type {!Promise<?AccessService>} */ (
-      getElementServiceIfAvailableForDoc(nodeOrDoc, 'access', 'amp-access'));
+  return (/** @type {
+      !Promise<?../extensions/amp-access/0.1/amp-access.AccessService>} */ (
+      getElementServiceIfAvailableForDoc(nodeOrDoc, 'access', 'amp-access')));
 }
 
 /**
@@ -68,6 +70,18 @@ export function actionServiceForDoc(nodeOrDoc) {
 export function activityForDoc(nodeOrDoc) {
   return /** @type {!Promise<!Activity>} */ (
       getElementServiceForDoc(nodeOrDoc, 'activity', 'amp-analytics'));
+}
+
+/**
+ * Returns the global instance of the `AmpDocService` service that can be
+ * used to resolve an ampdoc for any node: either in the single-doc or
+ * shadow-doc environment.
+ * @param {!Window} window
+ * @return {!./service/ampdoc-impl.AmpDocService}
+ */
+export function ampdocServiceFor(window) {
+  return /** @type {!./service/ampdoc-impl.AmpDocService} */ (
+      getService(window, 'ampdoc'));
 }
 
 /**
@@ -98,12 +112,29 @@ export function cidForDoc(nodeOrDoc) {
 }
 
 /**
+ * @param {!Window} window
+ * @return {!./service/crypto-impl.Crypto}
+ */
+export function cryptoFor(window) {
+  return (/** @type {!./service/crypto-impl.Crypto} */ (
+      getService(window, 'crypto')));
+}
+
+/**
  * @param {!Node|!./service/ampdoc-impl.AmpDoc} nodeOrDoc
  * @return {!./service/document-info-impl.DocumentInfoDef} Info about the doc
  */
 export function documentInfoForDoc(nodeOrDoc) {
   return /** @type {!./service/document-info-impl.DocInfo} */ (
       getServiceForDoc(nodeOrDoc, 'documentInfo')).get();
+}
+
+/**
+ * @param {!Window} window
+ * @return {!./service/document-state.DocumentState}
+ */
+export function documentStateFor(window) {
+  return getService(window, 'documentState');
 }
 
 /**
