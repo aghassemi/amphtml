@@ -6,10 +6,8 @@
   <title>Scroll-bound Animations in AMP</title>
   <link rel="canonical" href="http://nonblocking.io/">
   <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
-  <script async src="https://cdn.ampproject.org/v0.js"></script>
-  <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
-  <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-network-fake-impl-0.1.js"></script>
-  <script async custom-element="amp-animation" src="https://cdn.ampproject.org/v0/amp-animation-0.1.js"></script>
+  <script async src="/dist/amp.js"></script>
+  <script async custom-element="amp-animation" src="/dist/v0/amp-animation-0.1.max.js"></script>
   <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
   <style amp-custom>
     body {
@@ -65,7 +63,7 @@
 <body>
   <main>
     <h1>MUST ENABLE EXPERIMENT FIRST</h1>
-    <button onclick="window.AMP.toggleExperiment('amp-animation', true);">Enable amp-animation experiment</button>
+    <button onclick="window.AMP.toggleExperiment('amp-animation', true);location.reload();">Enable amp-animation experiment</button>
     <p>
       Sed pharetra semper fringilla. Nulla fringilla, neque eget varius suscipit, mi turpis congue odio, quis dignissim nisi nulla
       at erat. Duis non nibh vel erat vehicula hendrerit eget vel velit. Donec congue augue magna, nec eleifend dui porttitor
