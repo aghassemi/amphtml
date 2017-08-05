@@ -43,7 +43,7 @@ const icons = {
   'mute':
     `<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"></path>
      <path d="M0 0h24v24H0z" fill="none"></path>`,
-  'volume_max':
+  'unmute':
     `<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path>
      <path d="M0 0h24v24H0z" fill="none"></path>`,
   'seek':
@@ -190,6 +190,7 @@ export function imaVideo(global, data) {
   setStyle(wrapperDiv, 'width', videoWidth + 'px');
   setStyle(wrapperDiv, 'height', videoHeight + 'px');
   setStyle(wrapperDiv, 'background-color', 'black');
+  setStyle(wrapperDiv, 'overflow', 'hidden');
 
   // Wraps the big play button we show before video start.
   bigPlayDiv = global.document.createElement('div');
@@ -211,6 +212,7 @@ export function imaVideo(global, data) {
 
   // Video controls.
   controlsDiv = global.document.createElement('div');
+  controlsDiv.tabIndex = 0;
   controlsDiv.id = 'ima-controls';
   setStyle(controlsDiv, 'position', 'absolute');
   setStyle(controlsDiv, 'bottom', '0px');
@@ -368,6 +370,7 @@ export function imaVideo(global, data) {
       mouseMoveEvent = 'touchmove';
       mouseUpEvent = 'touchend';
     }
+    controlsDiv.addEventListener('focus', showControls);
     bigPlayDiv.addEventListener(interactEvent, onClick.bind(null, global));
     playPauseDiv.addEventListener(interactEvent, onPlayPauseClick);
     progressBarWrapperDiv.addEventListener(mouseDownEvent, onProgressClick);
@@ -457,11 +460,44 @@ function createIcon(global, name, fill = '#FFFFFF') {
   setStyle(icon, 'filter', 'drop-shadow(0px 0px 14px rgba(0,0,0,0.4))');
   setStyle(icon, '-webkit-filter', 'drop-shadow(0px 0px 14px rgba(0,0,0,0.4))');
   icon./*OK*/innerHTML = icons[name];
-  return icon;
+  const div = doc.createElement('div');
+  div.setAttribute('role', 'button');
+  div.tabIndex = 0;
+  div.title = name;
+  div.appendChild(icon);
+  let mouseTarget = null;
+  const handleBlur = event => {
+    event.target.removeEventListener('blur', handleBlur);
+    setStyle(event.target, 'outline', '');
+  };
+
+  const handleFocus = event => {
+    event.target.removeEventListener('focus', handleFocus);
+    event.target.addEventListener('blur', handleBlur);
+    if (mouseTarget === event.target) {
+      setStyle(event.target, 'outline', 'none');
+    }
+  };
+
+  div.addEventListener('mousedown', event => {
+    event.target.addEventListener('focus', handleFocus);
+    mouseTarget = event.target;
+  });
+
+  div.addEventListener('keydown', event => {
+    // Check to see if space or enter were pressed
+    if (event.keyCode === 32 || event.keyCode === 13) {
+      // Prevent the default action to stop scrolling when space is pressed
+      event.preventDefault();
+      event.target.click();
+    }
+  });
+
+  return div;
 }
 
 function changeIcon(element, name, fill = '#FFFFFF') {
-  element./*OK*/innerHTML = icons[name];
+  element.firstChild./*OK*/innerHTML = icons[name];
   if (fill != element.getAttributeNS(null, 'fill')) {
     element.setAttributeNS(null, 'fill', fill);
   }
@@ -850,6 +886,8 @@ function onFullscreenChange(global) {
  * @visibleForTesting
  */
 export function showControls() {
+  setStyle(controlsDiv, 'opacity', '1');
+  setStyle(controlsDiv, 'pointer-events', 'auto');
   setStyle(controlsDiv, 'display', 'flex');
   // Hide controls after 3 seconds
   if (playerState == PlayerStates.PLAYING) {
@@ -865,7 +903,9 @@ export function showControls() {
  * @visibleForTesting
  */
 export function hideControls() {
-  setStyle(controlsDiv, 'display', 'none');
+  // visually hide but keep accessible to screen readers
+  setStyle(controlsDiv, 'opacity', '0');
+  setStyle(controlsDiv, 'pointer-events', 'none');
 }
 
 /**
