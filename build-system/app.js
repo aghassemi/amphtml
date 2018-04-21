@@ -293,6 +293,27 @@ app.use('/form/verify-search-json/post', (req, res) => {
   });
 });
 
+app.use('/list/infinite', (req, res) => {
+  assertCors(req, res, ['GET']);
+  const MAX_RESULTS = 10;
+  const page = parseInt(req.query.page, 10);
+  const elements = JSON.parse(
+      fs.readFileSync(pc.cwd() + '/build-system/app-data/periodic-table.json')
+  ).elements;
+
+  const startIndex = MAX_RESULTS * (page - 1);
+  const endIndex = Math.min(MAX_RESULTS * page, elements.length) - 1;
+  const items = elements.slice(startIndex, endIndex).map(e => {
+    return {symbol: e.symbol, name: e.name, mass: e.mass};
+  });
+
+  res.json({
+    'next-page-url': '/list/infinite?page=' + (page + 1),
+    'items': items,
+  });
+
+});
+
 app.use('/share-tracking/get-outgoing-fragment', (req, res) => {
   res.setHeader('AMP-Access-Control-Allow-Source-Origin',
       req.protocol + '://' + req.headers.host);
