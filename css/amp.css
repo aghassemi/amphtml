@@ -968,7 +968,8 @@ amp-autocomplete > input,
 }
 
 .i-amphtml-new-loader-circle,
-.i-amphtml-new-loader-spinner {
+.i-amphtml-new-loader-spinner,
+.i-amphtml-new-loader-logo  {
   opacity: 0;
   fill: #aaaaaa;
 }
@@ -978,7 +979,10 @@ amp-autocomplete > input,
   animation: i-amphtml-fade-in 0.8s ease-in 1.8s;
   animation-fill-mode: forwards;
 }
-
+.i-amphtml-new-loader-logo {
+  fill: #888888;
+  animation: i-amphtml-fade-in 0.8s ease-in 0.6s;
+}
 .i-amphtml-new-loader-spinner-segment {
   animation: none 0.6s cubic-bezier(0.5, 0, 0.8, 1) 2.8s, none 1.2s linear 3.4s infinite;
 }
@@ -1005,7 +1009,8 @@ amp-autocomplete > input,
 
 .i-amphtml-loading-spinner,
 .i-amphtml-new-loader-spinner-segment,
-.i-amphtml-new-loader-circle {
+.i-amphtml-new-loader-circle,
+.i-amphtml-new-loader-logo {
   transform-origin: 60px 60px;
   animation-fill-mode: forwards;
 }
